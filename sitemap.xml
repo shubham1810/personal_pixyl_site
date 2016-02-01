@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://shubhamdokania.me/pca/machine/learning/image/processing/mathematics/2016/01/19/pca/</loc>
+    <loc>http://shubhamdokania.me/blog/evolutionary/2016/02/01/evolutionary-algorithms/</loc>
+    <lastmod>2016-02-01T14:40:00+05:30</lastmod>
+  </url>
+  <url>
+    <loc>http://shubhamdokania.me/blog/pca/2016/01/19/pca/</loc>
     <lastmod>2016-01-19T14:40:00+05:30</lastmod>
   </url>
   <url>
