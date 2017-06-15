@@ -7,21 +7,108 @@
     <atom:link href="http://shubham1810.github.io/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
-        <title>PCA: Principal Component Analysis</title>
-        <description>&lt;p&gt;The main purpose of Principal Component Analysis is the analysis of data to
-find patterns and reduce the dimensions of a dataset with minimal loss of
-information.
-…under work
-—&lt;/p&gt;
+        <title>Evolutionary ALgorithms I: Differential Evolution</title>
+        <description>&lt;p&gt;Evolutionary Algorithms are classified under a family of algorithms for global optimization by biological evolution, and are based on meta-heuristic search approaches. The possible solutions usually span a n-dimensional vector space over the problem domain and we simulate several population particles to reach a global optimum.&lt;/p&gt;
+
+&lt;p&gt;An optimization problem, in a basic form, consists of solving the task of maximizing or minimizing a real function by choosing values from a pool of possible solution elements (vectors) according to procedural instructions provided for the algorithm. Evolutionary approaches usually follow a specific strategy with differenet variations to select candidate elements from population set and apply crossover and/or mutations to modify the elements while trying to improve the quality of modified elements.&lt;/p&gt;
+
+&lt;p&gt;These algorithms can be applied to several interesting applications as well, and have been shown to perform very well in optimizing NP-hard problems as well, including the Travelling Salesman Problem, Job-Shop Scheduling, Graph coloring while also having applicaitons in domains such as Signals and Systems, Mechanical Engineering, and solving mathematical optimization problems.&lt;/p&gt;
+
+&lt;p&gt;One such algorithm belonging to the family of Evolutionary Algorithms is Differential Evolution (DE) algorithm. In this post, we shall be discussing about a few properties of the Diferential Evolution algorithm while implementing it in Python (github link) for optimizing a few test functions.&lt;/p&gt;
+
+&lt;h2 id=&quot;differential-evolution&quot;&gt;Differential Evolution&lt;/h2&gt;
+
+&lt;p&gt;DE approaches an optimization problem iteratively trying to improve a set of candidate solutions for a given measure of quality (cost function). These set of algorithms fall under meta-heuristics since they make few or no assumptions about the problem being optimized and can search very large spaces of possible solution elements. The algorithm involves maintaining a population of candidate solutions subjected to iterations of recombination, evaluation and selection. The creation of new candidate solution requires the application of a linear operation on selected elements using a parameter &lt;script type=&quot;math/tex&quot;&gt;F&lt;/script&gt; called differential weight from population to generate a vector element and then randomly applying crossover based on the parameter Crossover Probability. &lt;script type=&quot;math/tex&quot;&gt;CR&lt;/script&gt;.&lt;/p&gt;
+
+&lt;p&gt;The algorithm follows the steps listed down:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Initialize a set of agents/elements &lt;script type=&quot;math/tex&quot;&gt;x&lt;/script&gt; with random positions in the search space for population size &lt;script type=&quot;math/tex&quot;&gt;P&lt;/script&gt;.&lt;/li&gt;
+  &lt;li&gt;Until a termination criterion is met (number of iterations or required optimality), repeat the following for each agent &lt;script type=&quot;math/tex&quot;&gt;x_i&lt;/script&gt;:
+    &lt;ul&gt;
+      &lt;li&gt;Pick three agents &lt;script type=&quot;math/tex&quot;&gt;a, b&lt;/script&gt;, and &lt;script type=&quot;math/tex&quot;&gt;c&lt;/script&gt; from the population at random (distnct).&lt;/li&gt;
+      &lt;li&gt;Pick a random index &lt;script type=&quot;math/tex&quot;&gt;R \in \{1,...,n\}&lt;/script&gt; (&lt;script type=&quot;math/tex&quot;&gt;n&lt;/script&gt; is the dimensionality of the problem)&lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;Compute a temporary vector &lt;script type=&quot;math/tex&quot;&gt;y&lt;/script&gt; as following:&lt;/p&gt;
+
+        &lt;script type=&quot;math/tex; mode=display&quot;&gt;y = a + F (b-c)&lt;/script&gt;
+      &lt;/li&gt;
+      &lt;li&gt;Now, for each &lt;script type=&quot;math/tex&quot;&gt;j \in \{1,...,n\}&lt;/script&gt;, pick a uniformly distributed number &lt;script type=&quot;math/tex&quot;&gt;r_i \equiv U(0, 1)&lt;/script&gt;.&lt;/li&gt;
+      &lt;li&gt;If &lt;script type=&quot;math/tex&quot;&gt;r_i \lt CR&lt;/script&gt; or &lt;script type=&quot;math/tex&quot;&gt;i=R&lt;/script&gt;, then
+        &lt;ul&gt;
+          &lt;li&gt;set &lt;script type=&quot;math/tex&quot;&gt;x_{I, j} = y_{j}&lt;/script&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;Otherwise, &lt;script type=&quot;math/tex&quot;&gt;x_{I, j} = x_{i, j}&lt;/script&gt;&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;if &lt;script type=&quot;math/tex&quot;&gt;f(x_{I}) \lt f(x_i)&lt;/script&gt;, (&lt;script type=&quot;math/tex&quot;&gt;f&lt;/script&gt; is the cost function for minimization), then
+        &lt;ul&gt;
+          &lt;li&gt;replace &lt;script type=&quot;math/tex&quot;&gt;x_i&lt;/script&gt; with &lt;script type=&quot;math/tex&quot;&gt;x_i&lt;/script&gt;.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;otherwise, &lt;script type=&quot;math/tex&quot;&gt;x_i&lt;/script&gt; remains unchanged.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Pick the agent from the population that has the highest fitness or lowest cost function value as the solution.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;implementing-the-algorithm&quot;&gt;Implementing the Algorithm&lt;/h2&gt;
+
+&lt;p&gt;The directory structure for the code follows the design as given below:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;├──&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;differential_evolution&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;py&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;└──&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;helpers&lt;/span&gt;
+    &lt;span class=&quot;err&quot;&gt;├──&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;py&lt;/span&gt;
+    &lt;span class=&quot;err&quot;&gt;├──&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;collection&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;py&lt;/span&gt;
+    &lt;span class=&quot;err&quot;&gt;├──&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;point&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;py&lt;/span&gt;
+    &lt;span class=&quot;err&quot;&gt;└──&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;test_functions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;py&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Where, &lt;em&gt;differential_evolution.py&lt;/em&gt; is the main file we’ll run for execution of the algorithm.
+The helpers directory consists of helper classes and functions for several operations such as handling the point objects and vector operations related to candidate elements (&lt;em&gt;point.py&lt;/em&gt;), methods for handling the collection of all such points and building the population (&lt;em&gt;collection.py&lt;/em&gt;), test functions to be used objective/cost functions for testing the efficiency of the algorithm (&lt;em&gt;test_functions.py&lt;/em&gt;).&lt;/p&gt;
+
+&lt;h3 id=&quot;building-point-class&quot;&gt;Building Point Class&lt;/h3&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;a name=&quot;True-1&quot;&gt;&lt;/a&gt;&lt;span class=&quot;c&quot;&gt;# helpers/point.py&lt;/span&gt;
+&lt;a name=&quot;True-2&quot;&gt;&lt;/a&gt;
+&lt;a name=&quot;True-3&quot;&gt;&lt;/a&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;numpy&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;np&lt;/span&gt;
+&lt;a name=&quot;True-4&quot;&gt;&lt;/a&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;scipy&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;sp&lt;/span&gt;
+&lt;a name=&quot;True-5&quot;&gt;&lt;/a&gt;
+&lt;a name=&quot;True-6&quot;&gt;&lt;/a&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;test_functions&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;evaluate&lt;/span&gt;
+&lt;a name=&quot;True-7&quot;&gt;&lt;/a&gt;
+&lt;a name=&quot;True-8&quot;&gt;&lt;/a&gt;
+&lt;a name=&quot;True-9&quot;&gt;&lt;/a&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Point&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+&lt;a name=&quot;True-10&quot;&gt;&lt;/a&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dim&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;upper_limit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lower_limit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+&lt;a name=&quot;True-11&quot;&gt;&lt;/a&gt;        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dim&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dim&lt;/span&gt;
+&lt;a name=&quot;True-12&quot;&gt;&lt;/a&gt;        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;coords&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;zeros&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dim&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,))&lt;/span&gt;
+&lt;a name=&quot;True-13&quot;&gt;&lt;/a&gt;        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;z&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;
+&lt;a name=&quot;True-14&quot;&gt;&lt;/a&gt;        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;range_upper_limit&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;upper_limit&lt;/span&gt;
+&lt;a name=&quot;True-15&quot;&gt;&lt;/a&gt;        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;range_lower_limit&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lower_limit&lt;/span&gt;
+&lt;a name=&quot;True-16&quot;&gt;&lt;/a&gt;        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;evaluate_point&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;a name=&quot;True-17&quot;&gt;&lt;/a&gt;
+&lt;a name=&quot;True-18&quot;&gt;&lt;/a&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;generate_random_point&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+&lt;a name=&quot;True-19&quot;&gt;&lt;/a&gt;        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;coords&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;random&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;uniform&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;range_lower_limit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;range_upper_limit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dim&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,))&lt;/span&gt;
+&lt;a name=&quot;True-20&quot;&gt;&lt;/a&gt;        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;evaluate_point&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;a name=&quot;True-21&quot;&gt;&lt;/a&gt;
+&lt;a name=&quot;True-22&quot;&gt;&lt;/a&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;evaluate_point&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+&lt;a name=&quot;True-23&quot;&gt;&lt;/a&gt;        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;z&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;evaluate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;coords&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Here, we’re initializing the Point class with &lt;em&gt;dim&lt;/em&gt; which is the dimension size of the vector, &lt;em&gt;lower_limit&lt;/em&gt; and &lt;em&gt;upper_limit&lt;/em&gt; specify the domain of each co-ordinate of the vector. &lt;em&gt;self.z&lt;/em&gt; is the objective function value of the point, associated with each instance to make it wasy for ranking them based on their objective function value. The &lt;em&gt;evaluate_point&lt;/em&gt; function runs the objective function for the given point on the test function.&lt;/p&gt;
+
+&lt;p&gt;–&lt;/p&gt;
+
 </description>
-        <pubDate>Tue, 19 Jan 2016 14:40:00 +0530</pubDate>
-        <link>http://shubham1810.github.io/blog/pca/2016/01/19/pca/</link>
-        <guid isPermaLink="true">http://shubham1810.github.io/blog/pca/2016/01/19/pca/</guid>
+        <pubDate>Sun, 11 Jun 2017 14:40:00 +0530</pubDate>
+        <link>http://shubham1810.github.io/blog/ea/de/2017/06/11/de/</link>
+        <guid isPermaLink="true">http://shubham1810.github.io/blog/ea/de/2017/06/11/de/</guid>
       </item>
     
       <item>
         <title>Pixyll in Action</title>
-        <description>&lt;p&gt;There is a significant amount of subtle, yet precisely calibrated, styling to ensure
+        <description>&lt;p&gt;This template is kept for reference while writing new posts.&lt;/p&gt;
+
+&lt;p&gt;There is a significant amount of subtle, yet precisely calibrated, styling to ensure
 that your content is emphasized while still looking aesthetically pleasing.&lt;/p&gt;
 
 &lt;p&gt;All links are easy to &lt;a href=&quot;#&quot;&gt;locate and discern&lt;/a&gt;, yet don’t detract from the &lt;a href=&quot;#&quot;&gt;harmony
