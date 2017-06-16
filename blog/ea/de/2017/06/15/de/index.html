@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Shubham Dokania</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Differential Evolution algorithm and some experiments with objective functions.">
+    <meta name="author" content="Shubham Dokania">
+    <meta name="keywords" content="blog, ea, de">
+    <link rel="canonical" href="http://shubham1810.github.io/blog/ea/de/2017/06/15/de/">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Shubham Dokania" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?201706161257" type="text/css">
+
+    <!-- Fonts -->
+    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lato:900,300' rel='stylesheet' type='text/css'>
+    
+      <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    
+
+    <!-- Verifications -->
+    
+
+    <!-- Open Graph -->
+    <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Evolutionary Algorithms I: Differential Evolution">
+    <meta property="og:description" content="Personal website and blog">
+    <meta property="og:url" content="http://shubham1810.github.io/blog/ea/de/2017/06/15/de/">
+    <meta property="og:site_name" content="Shubham Dokania">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+        <meta name="twitter:site" content="@skd1810" />
+    
+    <meta name="twitter:title" content="Evolutionary Algorithms I: Differential Evolution" />
+    <meta name="twitter:description" content="Differential Evolution algorithm and some experiments with objective functions." />
+    <meta name="twitter:url" content="http://shubham1810.github.io/blog/ea/de/2017/06/15/de/" />
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+
+    
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-62090117-1']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+    
+</head>
+
+<body class="site animated fade-in-down">
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="http://shubham1810.github.io" class="site-title"></a>
+      <nav class="site-nav">
+        <a href="/">Home</a>
+<a href="/blog/">Blog</a>
+      </nav>
+      <div class="clearfix" ></div>
+      
+        <div class="social-icons">
+  <div class="left">
+    
+      <a class="fa fa-github" href="https://github.com/shubham1810"></a>
+    
+    
+    
+    <a class="fa fa-rss" href="/feed.xml"></a>
+    
+      <a class="fa fa-twitter" href="https://twitter.com/skd1810"></a>
+    
+    
+      <a class="fa fa-google-plus" href="https://plus.google.com/+shubamkumar/posts"></a>
+    
+    
+      <a class="fa fa-linkedin" href="https://www.linkedin.com/in/shubhamdokania"></a>
+    
+    
+    
+  </div>
+  <div class="right">
+
+    
+    
+    
+  </div>
+</div>
+
+<div class="clearfix">
+    
+      <center> <a class="fa fa-envelope" href="mailto:shubham.k.dokania@gmail.com"></a> shubham.k.dokania@gmail.com <center>
+    
+</div>
+
+    
+
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>Evolutionary Algorithms I: Differential Evolution</h1>
+  <span class="post-meta">Jun 15, 2017</span><br>
+  
+  <span class="post-meta small">
+  
+    10 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>Evolutionary Algorithms are classified under a family of algorithms for global optimization by biological evolution, and are based on meta-heuristic search approaches. The possible solutions usually span a n-dimensional vector space over the problem domain and we simulate several population particles to reach a global optimum.</p>
+
+<p>An optimization problem, in a basic form, consists of solving the task of maximizing or minimizing a real function by choosing values from a pool of possible solution elements (vectors) according to procedural instructions provided for the algorithm. Evolutionary approaches usually follow a specific strategy with differenet variations to select candidate elements from population set and apply crossover and/or mutations to modify the elements while trying to improve the quality of modified elements.</p>
+
+<p>These algorithms can be applied to several interesting applications as well, and have been shown to perform very well in optimizing NP-hard problems as well, including the Travelling Salesman Problem, Job-Shop Scheduling, Graph coloring while also having applicaitons in domains such as Signals and Systems, Mechanical Engineering, and solving mathematical optimization problems.</p>
+
+<p>One such algorithm belonging to the family of Evolutionary Algorithms is Differential Evolution (DE) algorithm. In this post, we shall be discussing about a few properties of the Diferential Evolution algorithm while implementing it in Python (github link) for optimizing a few test functions.</p>
+
+<h2 id="differential-evolution">Differential Evolution</h2>
+
+<p>DE approaches an optimization problem iteratively trying to improve a set of candidate solutions for a given measure of quality (cost function). These set of algorithms fall under meta-heuristics since they make few or no assumptions about the problem being optimized and can search very large spaces of possible solution elements. The algorithm involves maintaining a population of candidate solutions subjected to iterations of recombination, evaluation and selection. The creation of new candidate solution requires the application of a linear operation on selected elements using a parameter <script type="math/tex">F</script> called differential weight from population to generate a vector element and then randomly applying crossover based on the parameter Crossover Probability. <script type="math/tex">CR</script>.</p>
+
+<p>The algorithm follows the steps listed down:</p>
+
+<ol>
+  <li>Initialize a set of agents/elements <script type="math/tex">x</script> with random positions in the search space for population size <script type="math/tex">P</script>.</li>
+  <li>Until a termination criterion is met (number of iterations or required optimality), repeat the following for each agent <script type="math/tex">x_i</script>:
+    <ul>
+      <li>Pick three agents <script type="math/tex">a, b</script>, and <script type="math/tex">c</script> from the population at random (distnct).</li>
+      <li>Pick a random index <script type="math/tex">R \in \{1,...,n\}</script> (<script type="math/tex">n</script> is the dimensionality of the problem)</li>
+      <li>
+        <p>Compute a temporary vector <script type="math/tex">y</script> as following:</p>
+
+        <script type="math/tex; mode=display">y = a + F (b-c)</script>
+      </li>
+      <li>Now, for each <script type="math/tex">j \in \{1,...,n\}</script>, pick a uniformly distributed number <script type="math/tex">r_i \equiv U(0, 1)</script>.</li>
+      <li>If <script type="math/tex">r_i \lt CR</script> or <script type="math/tex">i=R</script>, then
+        <ul>
+          <li>set <script type="math/tex">x_{I, j} = y_{j}</script></li>
+        </ul>
+      </li>
+      <li>
+        <p>Otherwise, <script type="math/tex">x_{I, j} = x_{i, j}</script></p>
+      </li>
+      <li>if <script type="math/tex">f(x_{I}) \lt f(x_i)</script>, (<script type="math/tex">f</script> is the cost function for minimization), then
+        <ul>
+          <li>replace <script type="math/tex">x_i</script> with <script type="math/tex">x_i</script>.</li>
+        </ul>
+      </li>
+      <li>otherwise, <script type="math/tex">x_i</script> remains unchanged.</li>
+    </ul>
+  </li>
+  <li>Pick the agent from the population that has the highest fitness or lowest cost function value as the solution.</li>
+</ol>
+
+<h2 id="implementing-the-algorithm">Implementing the Algorithm</h2>
+
+<p>The directory structure for the code follows the design as given below:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">.</span>
+<span class="err">├──</span> <span class="n">differential_evolution</span><span class="o">.</span><span class="n">py</span>
+<span class="err">└──</span> <span class="n">helpers</span>
+    <span class="err">├──</span> <span class="n">__init__</span><span class="o">.</span><span class="n">py</span>
+    <span class="err">├──</span> <span class="n">point</span><span class="o">.</span><span class="n">py</span>
+    <span class="err">├──</span> <span class="n">population</span><span class="o">.</span><span class="n">py</span>
+    <span class="err">└──</span> <span class="n">test_functions</span><span class="o">.</span><span class="n">py</span></code></pre></div>
+
+<p>Where, <em>differential_evolution.py</em> is the main file we’ll run for execution of the algorithm.
+The helpers directory consists of helper classes and functions for several operations such as handling the point objects and vector operations related to candidate elements (<em>point.py</em>), methods for handling the collection of all such points and building the population (<em>collection.py</em>), test functions to be used objective/cost functions for testing the efficiency of the algorithm (<em>test_functions.py</em>).</p>
+
+<h3 id="building-the-point-class">Building The Point Class</h3>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><a name="True-1"></a><span class="c"># helpers/point.py</span>
+<a name="True-2"></a>
+<a name="True-3"></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<a name="True-4"></a><span class="kn">import</span> <span class="nn">scipy</span> <span class="kn">as</span> <span class="nn">sp</span>
+<a name="True-5"></a>
+<a name="True-6"></a>
+<a name="True-7"></a><span class="k">class</span> <span class="nc">Point</span><span class="p">:</span>
+<a name="True-8"></a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">upper_limit</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">lower_limit</span><span class="o">=-</span><span class="mi">10</span><span class="p">,</span> <span class="n">objective</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<a name="True-9"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">dim</span>
+<a name="True-10"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,))</span>
+<a name="True-11"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="bp">None</span>
+<a name="True-12"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">range_upper_limit</span> <span class="o">=</span> <span class="n">upper_limit</span>
+<a name="True-13"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">range_lower_limit</span> <span class="o">=</span> <span class="n">lower_limit</span>
+<a name="True-14"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">objective</span> <span class="o">=</span> <span class="n">objective</span>
+<a name="True-15"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_point</span><span class="p">()</span>
+<a name="True-16"></a>
+<a name="True-17"></a>    <span class="k">def</span> <span class="nf">generate_random_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a name="True-18"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range_lower_limit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">range_upper_limit</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,))</span>
+<a name="True-19"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_point</span><span class="p">()</span>
+<a name="True-20"></a>
+<a name="True-21"></a>    <span class="k">def</span> <span class="nf">evaluate_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a name="True-22"></a>        <span class="c"># self.z = evaluate(self.coords)</span>
+<a name="True-23"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span></code></pre></div>
+
+<p>Here, we’re initializing the Point class with <em>dim</em> which is the dimension size of the vector, <em>lower_limit</em> and <em>upper_limit</em> specify the domain of each co-ordinate of the vector. <em>self.z</em> is the objective function value of the point, associated with each instance to make it wasy for ranking them based on their objective function value. The <em>evaluate_point</em> function runs the objective function for the given point on the test function. The <em>Point</em> class creates instance of vector objects signifying each individual in the population. The collection of individuals is defined in the <em>Population</em> class.</p>
+
+<h3 id="the-populatoin-class">The Populatoin Class</h3>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><a name="True-1"></a><span class="c"># helpers/population.py</span>
+<a name="True-2"></a>
+<a name="True-3"></a><span class="kn">import</span> <span class="nn">copy</span>
+<a name="True-4"></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<a name="True-5"></a><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<a name="True-6"></a>
+<a name="True-7"></a><span class="kn">from</span> <span class="nn">point</span> <span class="kn">import</span> <span class="n">Point</span>
+<a name="True-8"></a><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<a name="True-9"></a>
+<a name="True-10"></a><span class="k">class</span> <span class="nc">Population</span><span class="p">:</span>
+<a name="True-11"></a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">num_points</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">upper_limit</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">lower_limit</span><span class="o">=-</span><span class="mi">10</span><span class="p">,</span> <span class="n">init_generate</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">objective</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<a name="True-12"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+<a name="True-13"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">num_points</span> <span class="o">=</span> <span class="n">num_points</span>
+<a name="True-14"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">init_generate</span> <span class="o">=</span> <span class="n">init_generate</span>
+<a name="True-15"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">dim</span>
+<a name="True-16"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">range_upper_limit</span> <span class="o">=</span> <span class="n">upper_limit</span>
+<a name="True-17"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">range_lower_limit</span> <span class="o">=</span> <span class="n">lower_limit</span>
+<a name="True-18"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">objective</span> <span class="o">=</span> <span class="n">objective</span>
+<a name="True-19"></a>        <span class="c"># If initial generation parameter is true, then generate collection</span>
+<a name="True-20"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_generate</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+<a name="True-21"></a>            <span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">num_points</span><span class="p">):</span>
+<a name="True-22"></a>                <span class="n">new_point</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span> <span class="n">upper_limit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">range_upper_limit</span><span class="p">,</span>
+<a name="True-23"></a>                                  <span class="n">lower_limit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">range_lower_limit</span><span class="p">,</span> <span class="n">objective</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="p">)</span>
+<a name="True-24"></a>                <span class="n">new_point</span><span class="o">.</span><span class="n">generate_random_point</span><span class="p">()</span>
+<a name="True-25"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_point</span><span class="p">)</span>
+<a name="True-26"></a>
+<a name="True-27"></a>    <span class="k">def</span> <span class="nf">get_average_objective</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a name="True-28"></a>        <span class="n">avg</span> <span class="o">=</span> <span class="mf">0.0</span>
+<a name="True-29"></a>
+<a name="True-30"></a>        <span class="k">for</span> <span class="n">px</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">:</span>
+<a name="True-31"></a>            <span class="n">avg</span> <span class="o">+=</span> <span class="n">px</span><span class="o">.</span><span class="n">z</span>
+<a name="True-32"></a>        <span class="n">avg</span> <span class="o">=</span> <span class="n">avg</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_points</span><span class="p">)</span>
+<a name="True-33"></a>        <span class="k">return</span> <span class="n">avg</span></code></pre></div>
+
+<p>The <em>Population</em> class contain the set of point class instances acting a individuals in the population. The individuals are stored in <em>self.points</em> list. The parameters of the class are <em>num_points</em>, containing information about the population size, <em>dim</em>, <em>upper_limit</em> and <em>lower_limit</em> as discussed above.
+As an optional parameter, <em>init_generate</em> controls the generation of the initial population and <em>objective</em> referes to an object of the <em>Function</em> class and is the objective function (discussed in the next section). If set to <em>False</em>, the initial population will be empty and the elements will need to added through the main procedure of the algorithm. The <em>get_average_objectve</em> function returns the mean evaluated objective value of the population.</p>
+
+<h3 id="the-objective-functions">The Objective Functions</h3>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><a name="True-1"></a><span class="c"># helpers/test_functions.py</span>
+<a name="True-2"></a>
+<a name="True-3"></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<a name="True-4"></a>
+<a name="True-5"></a>
+<a name="True-6"></a><span class="k">class</span> <span class="nc">Function</span><span class="p">:</span>
+<a name="True-7"></a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<a name="True-8"></a>
+<a name="True-9"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span> <span class="o">=</span> <span class="p">{</span>
+<a name="True-10"></a>            <span class="s">&#39;sphere&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sphere</span><span class="p">,</span>
+<a name="True-11"></a>            <span class="s">&#39;ackley&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ackley</span><span class="p">,</span>
+<a name="True-12"></a>            <span class="s">&#39;rosenbrock&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rosenbrock</span><span class="p">,</span>
+<a name="True-13"></a>            <span class="s">&#39;rastrigin&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rastrigin</span><span class="p">,</span>
+<a name="True-14"></a>        <span class="p">}</span>
+<a name="True-15"></a>        
+<a name="True-16"></a>        <span class="k">if</span> <span class="n">func</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+<a name="True-17"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">func_name</span> <span class="o">=</span> <span class="s">&#39;sphere&#39;</span>
+<a name="True-18"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">func_name</span><span class="p">]</span>
+<a name="True-19"></a>        <span class="k">else</span><span class="p">:</span>
+<a name="True-20"></a>            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">func</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+<a name="True-21"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">func_name</span> <span class="o">=</span> <span class="n">func</span>
+<a name="True-22"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">func_name</span><span class="p">]</span>
+<a name="True-23"></a>            <span class="k">else</span><span class="p">:</span>
+<a name="True-24"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
+<a name="True-25"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">func_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">func_name</span>
+<a name="True-26"></a>
+<a name="True-27"></a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
+<a name="True-28"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+<a name="True-29"></a>
+<a name="True-30"></a>    <span class="k">def</span> <span class="nf">sphere</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<a name="True-31"></a>        <span class="n">d</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a name="True-32"></a>        <span class="n">f</span> <span class="o">=</span> <span class="mf">0.0</span>
+<a name="True-33"></a>
+<a name="True-34"></a>        <span class="k">for</span> <span class="n">dx</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+<a name="True-35"></a>            <span class="n">f</span> <span class="o">+=</span> <span class="n">x</span><span class="p">[</span><span class="n">dx</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
+<a name="True-36"></a>        
+<a name="True-37"></a>        <span class="k">return</span> <span class="n">f</span>
+<a name="True-38"></a>
+<a name="True-39"></a>    <span class="k">def</span> <span class="nf">ackley</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<a name="True-40"></a>        <span class="n">z1</span><span class="p">,</span> <span class="n">z2</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+<a name="True-41"></a>
+<a name="True-42"></a>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+<a name="True-43"></a>            <span class="n">z1</span> <span class="o">+=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
+<a name="True-44"></a>            <span class="n">z2</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+<a name="True-45"></a>
+<a name="True-46"></a>        <span class="k">return</span> <span class="p">(</span><span class="o">-</span><span class="mf">20.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">z1</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))))</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">z2</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">e</span> <span class="o">+</span> <span class="mf">20.0</span>
+<a name="True-47"></a>
+<a name="True-48"></a>    <span class="k">def</span> <span class="nf">rosenbrock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<a name="True-49"></a>        <span class="n">v</span> <span class="o">=</span> <span class="mi">0</span>
+<a name="True-50"></a>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+<a name="True-51"></a>            <span class="n">v</span> <span class="o">+=</span> <span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+<a name="True-52"></a>
+<a name="True-53"></a>        <span class="k">return</span> <span class="n">v</span>
+<a name="True-54"></a>
+<a name="True-55"></a>    <span class="k">def</span> <span class="nf">rastrigin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<a name="True-56"></a>        <span class="n">v</span> <span class="o">=</span> <span class="mi">0</span>
+<a name="True-57"></a>
+<a name="True-58"></a>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+<a name="True-59"></a>            <span class="n">v</span> <span class="o">+=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+<a name="True-60"></a>
+<a name="True-61"></a>        <span class="k">return</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">+</span> <span class="n">v</span></code></pre></div>
+
+<p>The <em>test_functions.py</em> contains the implementation of the <em>Function</em> class, which creates an objecctive function object. The parameters to the constructor is <em>func</em> which can either be a string or a function. If <em>None</em>, it’ll store the function <em>sphere</em> in <em>self.func</em>, else it shall check for string value. For a string, it will assign the function with the same name implemented in the class (stored under the dictionary <em>self.objectives</em>). For a function, this assumes that the function accepts a numpy ndarray as an input and returns a scalar quantity as the objective function value.</p>
+
+<p>The Objective functions implemented by default currently include <em>sphere</em>, <em>ackley</em>, <em>rosenbrock</em>, and <em>rastrigin</em> functions. A list of optomization test functions can be found <a href="https://www.sfu.ca/~ssurjano/optimization.html">here</a>. These are all defined in a multi-dimmensional vector space and exhibit either unimodal or multi-modal properties. For example, the <em>sphere</em> function is a unimodal convex function, while the <em>rastrigin</em> function is a multi-modal non-convex function. The representation of the rastrigin function in a 3-D space is shown (the vertical axis is the value of the objective function):</p>
+
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/8/8b/Rastrigin_function.png" alt="ras" /></p>
+
+<h3 id="the-differential-evolution-class">The Differential Evolution Class</h3>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><a name="True-1"></a><span class="c"># differential_evolution.py</span>
+<a name="True-2"></a>
+<a name="True-3"></a><span class="kn">import</span> <span class="nn">copy</span>
+<a name="True-4"></a><span class="kn">import</span> <span class="nn">random</span>
+<a name="True-5"></a><span class="kn">import</span> <span class="nn">time</span>
+<a name="True-6"></a>
+<a name="True-7"></a><span class="kn">from</span> <span class="nn">helpers.population</span> <span class="kn">import</span> <span class="n">Population</span>
+<a name="True-8"></a><span class="kn">from</span> <span class="nn">helpers</span> <span class="kn">import</span> <span class="n">get_best_point</span>
+<a name="True-9"></a><span class="kn">from</span> <span class="nn">helpers.test_functions</span> <span class="kn">import</span> <span class="n">Function</span>
+<a name="True-10"></a>
+<a name="True-11"></a>
+<a name="True-12"></a><span class="k">class</span> <span class="nc">DifferentialEvolution</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<a name="True-13"></a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_iterations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">CR</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">F</span><span class="o">=</span><span class="mf">0.48</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">population_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">print_status</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<a name="True-14"></a>        <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">()</span>
+<a name="True-15"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">print_status</span> <span class="o">=</span> <span class="n">print_status</span>
+<a name="True-16"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">num_iterations</span> <span class="o">=</span> <span class="n">num_iterations</span>
+<a name="True-17"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">iteration</span> <span class="o">=</span> <span class="mi">0</span>
+<a name="True-18"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">CR</span> <span class="o">=</span> <span class="n">CR</span>
+<a name="True-19"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">F</span> <span class="o">=</span> <span class="n">F</span>
+<a name="True-20"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">population_size</span> <span class="o">=</span> <span class="n">population_size</span>
+<a name="True-21"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">)</span>
+<a name="True-22"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">population</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span> <span class="n">num_points</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">population_size</span><span class="p">,</span> <span class="n">objective</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">)</span>
+<a name="True-23"></a>
+<a name="True-24"></a>    <span class="k">def</span> <span class="nf">iterate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a name="True-25"></a>        <span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">num_points</span><span class="p">):</span>
+<a name="True-26"></a>            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
+<a name="True-27"></a>            <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<a name="True-28"></a>            <span class="k">while</span> <span class="n">x</span> <span class="o">==</span> <span class="n">a</span> <span class="ow">or</span> <span class="n">x</span> <span class="o">==</span> <span class="n">b</span> <span class="ow">or</span> <span class="n">x</span> <span class="o">==</span> <span class="n">c</span><span class="p">:</span>
+<a name="True-29"></a>                <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<a name="True-30"></a>
+<a name="True-31"></a>            <span class="n">R</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">dim</span>
+<a name="True-32"></a>            <span class="n">y</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<a name="True-33"></a>
+<a name="True-34"></a>            <span class="k">for</span> <span class="n">iy</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">dim</span><span class="p">):</span>
+<a name="True-35"></a>                <span class="n">ri</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+<a name="True-36"></a>
+<a name="True-37"></a>                <span class="k">if</span> <span class="n">ri</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">CR</span> <span class="ow">or</span> <span class="n">iy</span> <span class="o">==</span> <span class="n">R</span><span class="p">:</span>
+<a name="True-38"></a>                    <span class="n">y</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">iy</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">iy</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">F</span> <span class="o">*</span> <span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">iy</span><span class="p">]</span> <span class="o">-</span> <span class="n">c</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">iy</span><span class="p">])</span>
+<a name="True-39"></a>
+<a name="True-40"></a>            <span class="n">y</span><span class="o">.</span><span class="n">evaluate_point</span><span class="p">()</span>
+<a name="True-41"></a>            <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">z</span> <span class="o">&lt;</span> <span class="n">x</span><span class="o">.</span><span class="n">z</span><span class="p">:</span>
+<a name="True-42"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+<a name="True-43"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">iteration</span> <span class="o">+=</span> <span class="mi">1</span>
+<a name="True-44"></a>
+<a name="True-45"></a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a name="True-46"></a>        <span class="n">pnt</span> <span class="o">=</span> <span class="n">get_best_point</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+<a name="True-47"></a>        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Initial best value: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pnt</span><span class="o">.</span><span class="n">z</span><span class="p">))</span>
+<a name="True-48"></a>        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">iteration</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_iterations</span><span class="p">:</span>
+<a name="True-49"></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_status</span> <span class="o">==</span> <span class="bp">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">iteration</span><span class="o">%</span><span class="mi">50</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<a name="True-50"></a>                <span class="n">pnt</span> <span class="o">=</span> <span class="n">get_best_point</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+<a name="True-51"></a>                <span class="k">print</span> <span class="n">pnt</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">get_average_objective</span><span class="p">()</span>
+<a name="True-52"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">iterate</span><span class="p">()</span>
+<a name="True-53"></a>
+<a name="True-54"></a>        <span class="n">pnt</span> <span class="o">=</span> <span class="n">get_best_point</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+<a name="True-55"></a>        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Final best value: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pnt</span><span class="o">.</span><span class="n">z</span><span class="p">))</span>
+<a name="True-56"></a>        <span class="k">return</span> <span class="n">pnt</span><span class="o">.</span><span class="n">z</span></code></pre></div>
+
+<p>Here, in the <em>DifferentialEvolution</em> class, the initializing parameters are:</p>
+
+<ol>
+  <li><em>num_iteration</em> controlling the number of generations/iterations the optimization loop runs. Acts as the stopping criterion.</li>
+  <li><em>CR</em> and <em>F</em> are the Crossover Probability and the Differential Weight as defined in the algorithm.</li>
+  <li><em>dim</em> is the number of dimensions of the individial vectors (Size of the vector space, <script type="math/tex">x \in R^n</script>; <script type="math/tex">x</script> is an individual vector).</li>
+  <li><em>population_size</em> is passed to the <em>Population</em> class and the population object is stored in <em>self.population</em>.</li>
+  <li><em>print_status</em> is a boolean value used for verbosity (prints the best objective function value at each iteration).</li>
+  <li><em>func</em> accepts either the function name or the actual function and is used to create the <em>self.func</em> object, which is an instance of the <em>Function</em> class.</li>
+  <li><em>self.iteration</em> keeps tracck of the current iteration/generation.</li>
+</ol>
+
+<p>There are essentially two member functions, <em>self.iterate</em> and <em>self.simulate</em>. The <em>self.iterate</em> function runs oone iteration of the Differential Evolution procedure, by applying the transformation operation and crossover on each individual in the population, and the <em>self.simulate</em> function calls the iterate function until the stopping criteria is met, and then prints the best value for the objective function.</p>
+
+<h3 id="demo">Demo</h3>
+
+<p>Now that we have an implementation for all the required classes for the Differential Evolution algorithm, we can write a small script to test everything out and see the results.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><a name="True-1"></a><span class="c"># demo.py</span>
+<a name="True-2"></a>
+<a name="True-3"></a><span class="kn">from</span> <span class="nn">differential_evolution</span> <span class="kn">import</span> <span class="n">DifferentialEvolution</span>
+<a name="True-4"></a><span class="kn">import</span> <span class="nn">datetime</span>
+<a name="True-5"></a>
+<a name="True-6"></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<a name="True-7"></a><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<a name="True-8"></a>
+<a name="True-9"></a><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+<a name="True-10"></a>    <span class="n">number_of_runs</span> <span class="o">=</span> <span class="mi">5</span>
+<a name="True-11"></a>    <span class="n">val</span> <span class="o">=</span> <span class="mi">0</span>
+<a name="True-12"></a>    <span class="n">print_time</span> <span class="o">=</span> <span class="bp">True</span>
+<a name="True-13"></a>
+<a name="True-14"></a>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">number_of_runs</span><span class="p">):</span>
+<a name="True-15"></a>        <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+<a name="True-16"></a>        <span class="n">de</span> <span class="o">=</span> <span class="n">DifferentialEvolution</span><span class="p">(</span><span class="n">num_iterations</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">CR</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">F</span><span class="o">=</span><span class="mf">0.48</span><span class="p">,</span> <span class="n">population_size</span><span class="o">=</span><span class="mi">75</span><span class="p">,</span> <span class="n">print_status</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="s">&#39;sphere&#39;</span><span class="p">)</span>
+<a name="True-17"></a>        <span class="n">val</span> <span class="o">+=</span> <span class="n">de</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+<a name="True-18"></a>        <span class="k">if</span> <span class="n">print_time</span><span class="p">:</span>
+<a name="True-19"></a>            <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Time taken:&quot;</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<a name="True-20"></a>    <span class="k">print</span> <span class="s">&#39;-&#39;</span><span class="o">*</span><span class="mi">80</span>
+<a name="True-21"></a>    <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Final average of all runs:&quot;</span><span class="p">,</span> <span class="n">val</span> <span class="o">/</span> <span class="n">number_of_runs</span></code></pre></div>
+
+<p>This script initializes the variables <em>number_of_runs</em>, <em>val</em>, and <em>print_time</em>. <em>number_of_runs</em> is used to initiate several runs of the algorithm, and finally the average outcome of the optimized objective function is returned after those runs. <em>val</em> stores the optimized objective function value for each run and is later used to compute the average. <em>print_time</em> is a boolean which controls if the computation time should be printed for each run or not.</p>
+
+<p>The output for the above code, i.e. using the differential evolution algorithm to optimize the sphere test function, on 50 dimensions (50-D vector space), running for 200 iterations for each runs produces the following output:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><a name="True-1"></a><span class="c"># Output</span>
+<a name="True-2"></a>
+<a name="True-3"></a><span class="n">Initial</span> <span class="n">best</span> <span class="n">value</span><span class="p">:</span> <span class="mf">1285.50913073</span>
+<a name="True-4"></a><span class="n">Final</span> <span class="n">best</span> <span class="n">value</span><span class="p">:</span> <span class="mf">0.0258755727525</span>
+<a name="True-5"></a>
+<a name="True-6"></a><span class="n">Time</span> <span class="n">taken</span><span class="p">:</span> <span class="mi">0</span><span class="p">:</span><span class="mo">00</span><span class="p">:</span><span class="mf">05.931056</span>
+<a name="True-7"></a><span class="n">Initial</span> <span class="n">best</span> <span class="n">value</span><span class="p">:</span> <span class="mf">1218.54112743</span>
+<a name="True-8"></a><span class="n">Final</span> <span class="n">best</span> <span class="n">value</span><span class="p">:</span> <span class="mf">0.0323126608382</span>
+<a name="True-9"></a>
+<a name="True-10"></a><span class="n">Time</span> <span class="n">taken</span><span class="p">:</span> <span class="mi">0</span><span class="p">:</span><span class="mo">00</span><span class="p">:</span><span class="mf">05.560921</span>
+<a name="True-11"></a><span class="n">Initial</span> <span class="n">best</span> <span class="n">value</span><span class="p">:</span> <span class="mf">1253.1145944</span>
+<a name="True-12"></a><span class="n">Final</span> <span class="n">best</span> <span class="n">value</span><span class="p">:</span> <span class="mf">0.0340955810298</span>
+<a name="True-13"></a>
+<a name="True-14"></a><span class="n">Time</span> <span class="n">taken</span><span class="p">:</span> <span class="mi">0</span><span class="p">:</span><span class="mo">00</span><span class="p">:</span><span class="mf">06.081233</span>
+<a name="True-15"></a><span class="n">Initial</span> <span class="n">best</span> <span class="n">value</span><span class="p">:</span> <span class="mf">1298.5615981</span>
+<a name="True-16"></a><span class="n">Final</span> <span class="n">best</span> <span class="n">value</span><span class="p">:</span> <span class="mf">0.0439433666035</span>
+<a name="True-17"></a>
+<a name="True-18"></a><span class="n">Time</span> <span class="n">taken</span><span class="p">:</span> <span class="mi">0</span><span class="p">:</span><span class="mo">00</span><span class="p">:</span><span class="mf">04.511034</span>
+<a name="True-19"></a><span class="n">Initial</span> <span class="n">best</span> <span class="n">value</span><span class="p">:</span> <span class="mf">1228.13894559</span>
+<a name="True-20"></a><span class="n">Final</span> <span class="n">best</span> <span class="n">value</span><span class="p">:</span> <span class="mf">0.0405344973595</span>
+<a name="True-21"></a>
+<a name="True-22"></a><span class="n">Time</span> <span class="n">taken</span><span class="p">:</span> <span class="mi">0</span><span class="p">:</span><span class="mo">00</span><span class="p">:</span><span class="mf">05.081286</span>
+<a name="True-23"></a><span class="o">--------------------------------------------------------------------------------</span>
+<a name="True-24"></a>
+<a name="True-25"></a><span class="n">Final</span> <span class="n">average</span> <span class="n">of</span> <span class="nb">all</span> <span class="n">runs</span><span class="p">:</span> <span class="mf">0.0353523357167</span></code></pre></div>
+
+<p>The plot for objective function value against the iterations for the sphere test function in 50D and the Rastrigin test function in 50D are shown below:</p>
+
+<p><img src="/images/EA/sphere_50d_DE.png" alt="res_sphere" /></p>
+
+<p><img src="/images/EA/rastrigin_50d_DE.png" alt="res_rastrigin" /></p>
+
+<p>The code is available in a github repository <a href="https://github.com/shubham1810/Evolutionary_Algorithms_blog_code">here</a>.</p>
+
+<p>–</p>
+
+
+</article>
+
+
+  
+
+
+
+
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+    var disqus_shortname  = 'shubhamdokania';
+    var disqus_identifier = '/blog/ea/de/2017/06/15/de';
+    var disqus_title      = '';
+
+    (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      Powered by <a href="https://jekyllrb.com/">Jekyll</a> using <a href="https://pixyll.com/">Pixyll</a> theme. Hosted on <a href="https://pages.github.com/">Github Pages</a>. <br>
+      © Shubham Dokania
+    </small>
+  </div>
+</footer>
+
+</body>
+</html>
