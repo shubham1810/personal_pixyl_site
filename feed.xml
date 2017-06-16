@@ -96,7 +96,7 @@ The helpers directory consists of helper classes and functions for several opera
 
 &lt;p&gt;Here, we’re initializing the Point class with &lt;em&gt;dim&lt;/em&gt; which is the dimension size of the vector, &lt;em&gt;lower_limit&lt;/em&gt; and &lt;em&gt;upper_limit&lt;/em&gt; specify the domain of each co-ordinate of the vector. &lt;em&gt;self.z&lt;/em&gt; is the objective function value of the point, associated with each instance to make it wasy for ranking them based on their objective function value. The &lt;em&gt;evaluate_point&lt;/em&gt; function runs the objective function for the given point on the test function. The &lt;em&gt;Point&lt;/em&gt; class creates instance of vector objects signifying each individual in the population. The collection of individuals is defined in the &lt;em&gt;Population&lt;/em&gt; class.&lt;/p&gt;
 
-&lt;h3 id=&quot;the-populatoin-class&quot;&gt;The Populatoin Class&lt;/h3&gt;
+&lt;h3 id=&quot;the-population-class&quot;&gt;The Population Class&lt;/h3&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;a name=&quot;True-1&quot;&gt;&lt;/a&gt;&lt;span class=&quot;c&quot;&gt;# helpers/population.py&lt;/span&gt;
 &lt;a name=&quot;True-2&quot;&gt;&lt;/a&gt;
