@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://shubham1810.github.io/blog/markov-chains/2017/10/14/mc/</loc>
+    <lastmod>2017-10-14T14:30:00+05:30</lastmod>
+  </url>
+  <url>
     <loc>http://shubham1810.github.io/blog/ea/de/2017/06/15/de/</loc>
     <lastmod>2017-06-15T14:40:00+05:30</lastmod>
   </url>

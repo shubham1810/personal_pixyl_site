@@ -7,6 +7,54 @@
     <atom:link href="http://shubham1810.github.io/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>Markov Chains</title>
+        <description>&lt;p&gt;Markov chains are memoryless mathematical process (or a sequence) which jump from one state to another, following the rules of the &lt;a href=&quot;&quot;&gt;Markov property&lt;/a&gt;. A &lt;strong&gt;state&lt;/strong&gt; can be thought of as a situation/event or a set of values. One example to demonstrate a markov chain can be weather conditions; &lt;em&gt;Sunny&lt;/em&gt; and &lt;em&gt;Rainy&lt;/em&gt; being two weather conditions (states), one such sample of a sequence of events can be as follows:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-css&quot; data-lang=&quot;css&quot;&gt;&lt;span class=&quot;nt&quot;&gt;Rainy&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;Sunny&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;Rainy&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;Rainy&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;Sunny&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;Sunny&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;Sunny&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;Sunny&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;Rainy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The Markov chain follows the shifts or &lt;em&gt;transitions&lt;/em&gt; based on a Transition Probability Matrix, &lt;script type=&quot;math/tex&quot;&gt;T&lt;/script&gt;, which contain information about how probable it is to visit state &lt;script type=&quot;math/tex&quot;&gt;j&lt;/script&gt; when the current state is &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;, for all possible states of the system (called the state space, &lt;script type=&quot;math/tex&quot;&gt;S&lt;/script&gt;). The Markov property states that the conditional probability distribution of the future states depends only on the present state, not the sequence of previous states. Mathematically, assume &lt;script type=&quot;math/tex&quot;&gt;X&lt;/script&gt; is a sequence of states &lt;script type=&quot;math/tex&quot;&gt;x_i \in S&lt;/script&gt;, then &lt;script type=&quot;math/tex&quot;&gt;X = x_n, x_{n-1}, ..., x_0&lt;/script&gt; is a Markov sequence iff:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbb{P}(X_n = x_n | X_{n-1} = x_{n-1}, ..., X_0 = x_0) = \mathbb{P}(X_n = x_n | X_{n-1} = x_{n-1})&lt;/script&gt;
+
+&lt;p&gt;Where the probability of transition is taken from &lt;script type=&quot;math/tex&quot;&gt;T&lt;/script&gt;, i.e.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;% &lt;![CDATA[
+\mathbb{P}(X_n = j | X_{n-1} = i) = T_{ij};  T =
+\begin{bmatrix}
+    p_{11}       &amp; p_{12} &amp; p_{13} &amp; \dots &amp; p_{1m} \\
+    p_{21}       &amp; p_{22} &amp; p_{23} &amp; \dots &amp; p_{2m} \\
+    \vdots       &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+    p_{m1}       &amp; p_{m2} &amp; p_{m3} &amp; \dots &amp; p_{mm}
+\end{bmatrix} %]]&gt;&lt;/script&gt;
+
+&lt;p&gt;It is because of the markov property that the markov chain is called a memoryless process since there is no requirement to store the past states in the memory. The system jumps from one state to another following the probability distribution given by the transition probability matrix &lt;script type=&quot;math/tex&quot;&gt;T&lt;/script&gt;. An excellent interactive example of a markov chain can be found &lt;a href=&quot;http://setosa.io/markov&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Also, since markov chains predict the probability of going from a state &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; to state &lt;script type=&quot;math/tex&quot;&gt;j&lt;/script&gt; (&lt;script type=&quot;math/tex&quot;&gt;i, j \in S&lt;/script&gt;) in one step, they can also be used to predict the probability of going from state &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; to state &lt;script type=&quot;math/tex&quot;&gt;j&lt;/script&gt; in some &lt;script type=&quot;math/tex&quot;&gt;k&lt;/script&gt; number of steps. The probability of going from &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; to &lt;script type=&quot;math/tex&quot;&gt;j&lt;/script&gt; in 2 steps (reaching an intermediate state &lt;script type=&quot;math/tex&quot;&gt;p&lt;/script&gt; in between) &lt;script type=&quot;math/tex&quot;&gt;i \to p \to j&lt;/script&gt; is:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbb{P}(X_n = j | X_{n-1} = p) . \mathbb{P}(X_{n-1} = p | X_{n-2} = i) = T_{ip} . T_{pj}&lt;/script&gt;
+
+&lt;p&gt;which is essentially the element at position (&lt;script type=&quot;math/tex&quot;&gt;i, j&lt;/script&gt;) in a matrix &lt;script type=&quot;math/tex&quot;&gt;A = T^2&lt;/script&gt;. In general, this probability for &lt;script type=&quot;math/tex&quot;&gt;k&lt;/script&gt; steps can be computed from &lt;script type=&quot;math/tex&quot;&gt;T_{ij}^{k}&lt;/script&gt;.&lt;/p&gt;
+
+&lt;p&gt;Few popular applications of Markov chains include Google PageRank, Autocomplete/typing word prediction, Generating sequences of text (for sentences) or pixels (for images) etc.&lt;/p&gt;
+
+&lt;!--## Markov Chains for Text Generation
+
+Let&#39;s try generating some sequences of text using markov chains! For this task, we&#39;re going to use a text corpus of &quot;Complete Sherlock Holmes&quot; collection. For creating the markov model, we shall use a character-based method instead of word based (because it runs faster :P).
+--&gt;
+
+&lt;p&gt;–&lt;/p&gt;
+
+&lt;p&gt;TODO: Add code + example for text generation using markov chains.&lt;/p&gt;
+
+&lt;p&gt;–&lt;/p&gt;
+
+</description>
+        <pubDate>Sat, 14 Oct 2017 14:30:00 +0530</pubDate>
+        <link>http://shubham1810.github.io/blog/markov-chains/2017/10/14/mc/</link>
+        <guid isPermaLink="true">http://shubham1810.github.io/blog/markov-chains/2017/10/14/mc/</guid>
+      </item>
+    
+      <item>
         <title>Evolutionary Algorithms I: Differential Evolution</title>
         <description>&lt;p&gt;Evolutionary Algorithms are classified under a family of algorithms for global optimization by biological evolution, and are based on meta-heuristic search approaches. The possible solutions usually span a n-dimensional vector space over the problem domain and we simulate several population particles to reach a global optimum.&lt;/p&gt;
 
