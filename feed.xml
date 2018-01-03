@@ -7,6 +7,24 @@
     <atom:link href="http://shubham1810.github.io/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>Object Detection with R-CNN Family</title>
+        <description>&lt;p&gt;Convolution Neural Networks (CNNs) are widely used, majorly for the purpose of image classification (classifying an object in an image into one of the given categories) and have shown to perform very well on huge datasets (for example, the ImageNet challenge [link]). Even with the huge success &lt;replace this=&quot;&quot;&gt; of CNNs in classification, the task of actually understanding an image still remains a challenge. One such task that corresponds to image understanding is object detection, wherein the task is to detect objects in an image and specify where these objects appear in the image (using a bounding box or masking etc.).&lt;/replace&gt;&lt;/p&gt;
+
+&lt;p&gt;Several algorithms have been proposed to solve the task of object detection, and one such class of methods to be discussed in this post is the R-CNN family of algorithms (R-CNN [], fast R-CNN [], faster R-CNN [], Mask R-CNN []).&lt;/p&gt;
+
+&lt;h2 id=&quot;r-cnn&quot;&gt;R-CNN&lt;/h2&gt;
+
+&lt;p&gt;R-CNN, or &lt;strong&gt;Regions with CNN features&lt;/strong&gt;, is a method for object detection proposed in 2014&lt;/p&gt;
+
+&lt;p&gt;–&lt;/p&gt;
+
+</description>
+        <pubDate>Tue, 05 Dec 2017 14:30:00 +0530</pubDate>
+        <link>http://shubham1810.github.io/blog/rcnn/2017/12/05/objectdetection/</link>
+        <guid isPermaLink="true">http://shubham1810.github.io/blog/rcnn/2017/12/05/objectdetection/</guid>
+      </item>
+    
+      <item>
         <title>Markov Chains</title>
         <description>&lt;p&gt;Markov chains are memoryless mathematical process (or a sequence) which jump from one state to another, following the rules of the &lt;a href=&quot;&quot;&gt;Markov property&lt;/a&gt;. A &lt;strong&gt;state&lt;/strong&gt; can be thought of as a situation/event or a set of values. One example to demonstrate a markov chain can be weather conditions; &lt;em&gt;Sunny&lt;/em&gt; and &lt;em&gt;Rainy&lt;/em&gt; being two weather conditions (states), one such sample of a sequence of events can be as follows:&lt;/p&gt;
 

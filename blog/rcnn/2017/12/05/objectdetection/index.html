@@ -5,10 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Shubham Dokania</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Personal website and blog">
+    <meta name="description" content="R-CNN, Fast R-CNN, Faster R-CNN">
     <meta name="author" content="Shubham Dokania">
-    
-    <link rel="canonical" href="http://shubham1810.github.io/blog/">
+    <meta name="keywords" content="blog, rcnn">
+    <link rel="canonical" href="http://shubham1810.github.io/blog/rcnn/2017/12/05/objectdetection/">
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Shubham Dokania" href="/feed.xml" />
 
     <!-- Custom CSS -->
@@ -28,9 +28,9 @@
     <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
     <meta property="og:locale" content="en_US">
     <meta property="og:type" content="article">
-    <meta property="og:title" content="Blog">
+    <meta property="og:title" content="Object Detection with R-CNN Family">
     <meta property="og:description" content="Personal website and blog">
-    <meta property="og:url" content="http://shubham1810.github.io/blog/">
+    <meta property="og:url" content="http://shubham1810.github.io/blog/rcnn/2017/12/05/objectdetection/">
     <meta property="og:site_name" content="Shubham Dokania">
 
     <!-- Twitter Card -->
@@ -38,9 +38,9 @@
     
         <meta name="twitter:site" content="@skd1810" />
     
-    <meta name="twitter:title" content="Blog" />
-    <meta name="twitter:description" content="Personal website and blog" />
-    <meta name="twitter:url" content="http://shubham1810.github.io/blog/" />
+    <meta name="twitter:title" content="Object Detection with R-CNN Family" />
+    <meta name="twitter:description" content="R-CNN, Fast R-CNN, Faster R-CNN" />
+    <meta name="twitter:url" content="http://shubham1810.github.io/blog/rcnn/2017/12/05/objectdetection/" />
 
     <!-- Icons -->
     <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
@@ -128,66 +128,59 @@
 
     <div class="post p2 p-responsive wrap" role="main">
       <div class="measure">
-        <div class="home">
+        
 
-  <div class="posts">
-    
-      <div class="post py3">
-        <p class="post-meta">Dec 5, 2017</p>
-        <a href="/blog/rcnn/2017/12/05/objectdetection/" class="post-link"><h3 class="h3 post-title">Object Detection with R-CNN Family</h3></a>
-        <p class="post-summary">
-          
-            R-CNN, Fast R-CNN, Faster R-CNN
-          
-        </p>
-      </div>
-    
-      <div class="post py3">
-        <p class="post-meta">Oct 14, 2017</p>
-        <a href="/blog/markov-chains/2017/10/14/mc/" class="post-link"><h3 class="h3 post-title">Markov Chains</h3></a>
-        <p class="post-summary">
-          
-            Markov chains
-          
-        </p>
-      </div>
-    
-      <div class="post py3">
-        <p class="post-meta">Jun 15, 2017</p>
-        <a href="/blog/ea/de/2017/06/15/de/" class="post-link"><h3 class="h3 post-title">Evolutionary Algorithms I: Differential Evolution</h3></a>
-        <p class="post-summary">
-          
-            Differential Evolution algorithm and some experiments with objective functions.
-          
-        </p>
-      </div>
-    
-      <div class="post py3">
-        <p class="post-meta">Jun 10, 2014</p>
-        <a href="/jekyll/pixyll/2014/06/10/see-pixyll-in-action/" class="post-link"><h3 class="h3 post-title">Pixyll in Action</h3></a>
-        <p class="post-summary">
-          
-            This tamplate is kept for reference while writing new posts.
-          
-        </p>
-      </div>
-    
-  </div>
 
-  <div class="pagination clearfix mb1 mt4">
-  <div class="left">
-    
-      <span class="pagination-item disabled">Newer</span>
-    
-  </div>
-  <div class="right">
-    
-      <span class="pagination-item disabled">Older</span>
-    
-  </div>
+
+
+<div class="post-header mb2">
+  <h1>Object Detection with R-CNN Family</h1>
+  <span class="post-meta">Dec 5, 2017</span><br>
+  
+  <span class="post-meta small">
+  
+    1 minute read
+  
+  </span>
 </div>
 
-</div>
+<article class="post-content">
+  <p>Convolution Neural Networks (CNNs) are widely used, majorly for the purpose of image classification (classifying an object in an image into one of the given categories) and have shown to perform very well on huge datasets (for example, the ImageNet challenge [link]). Even with the huge success <replace this=""> of CNNs in classification, the task of actually understanding an image still remains a challenge. One such task that corresponds to image understanding is object detection, wherein the task is to detect objects in an image and specify where these objects appear in the image (using a bounding box or masking etc.).</replace></p>
+
+<p>Several algorithms have been proposed to solve the task of object detection, and one such class of methods to be discussed in this post is the R-CNN family of algorithms (R-CNN [], fast R-CNN [], faster R-CNN [], Mask R-CNN []).</p>
+
+<h2 id="r-cnn">R-CNN</h2>
+
+<p>R-CNN, or <strong>Regions with CNN features</strong>, is a method for object detection proposed in 2014</p>
+
+<p>–</p>
+
+
+</article>
+
+
+  
+
+
+
+
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+    var disqus_shortname  = 'shubhamdokania';
+    var disqus_identifier = '/blog/rcnn/2017/12/05/objectdetection';
+    var disqus_title      = '';
+
+    (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
 
       </div>
     </div>
