@@ -52,7 +52,7 @@ C_Y = W\cdot C_X\cdot W^T&lt;/script&gt;
 &lt;script type=&quot;math/tex; mode=display&quot;&gt;C_X = W^T\cdot C_Y\cdot W&lt;/script&gt;
 
 &lt;p&gt;We know that, &lt;script type=&quot;math/tex&quot;&gt;C_Y&lt;/script&gt; is supposed to be a diagonal matrix. What does this equation remind us of? &lt;em&gt;but of course&lt;/em&gt;, the Singular Value Decomposition (SVD).
-Thus, If we take &lt;script type=&quot;math/tex&quot;&gt;W&lt;/script&gt; as the matrix of the eigenvalues and &lt;script type=&quot;math/tex&quot;&gt;C_Y&lt;/script&gt; as the diagonal matrix of the eigenvalues, the above equation will hold true, making the matrix &lt;script type=&quot;math/tex&quot;&gt;W&lt;/script&gt;, of eigenvectors of covariance of &lt;script type=&quot;math/tex&quot;&gt;X&lt;/script&gt;, our transformation matrix.&lt;/p&gt;
+Thus, If we take &lt;script type=&quot;math/tex&quot;&gt;W&lt;/script&gt; as the matrix of the eigenvectors and &lt;script type=&quot;math/tex&quot;&gt;C_Y&lt;/script&gt; as the diagonal matrix of the eigenvalues, the above equation will hold true, making the matrix &lt;script type=&quot;math/tex&quot;&gt;W&lt;/script&gt;, of eigenvectors of covariance of &lt;script type=&quot;math/tex&quot;&gt;X&lt;/script&gt;, our transformation matrix.&lt;/p&gt;
 
 &lt;p&gt;Computing the above values for our data, and plotting the directions of the obtained eigenvalues, we get the following:&lt;/p&gt;
 
