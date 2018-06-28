@@ -7,6 +7,118 @@
     <atom:link href="http://shubham1810.github.io/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>Principal Component Analysis</title>
+        <description>&lt;p&gt;As we work with real world data, we notice that the complexity increases; both in terms of dependency of variables on each other and dimensionality (number of variables) of the problem. Several techniques exist for analysis of such information and to make it easier to extract important properties for the purpose of better computation and visualization. One such method is the &lt;strong&gt;Principal Component Analysis (PCA)&lt;/strong&gt;, which emphasises on the variance of the data to extract the directions which maximize the data variation.&lt;/p&gt;
+
+&lt;p&gt;One of the major applications of PCA is dimensionality reduction, which is attained by choosing the transformed variables (obtained from projection of original variables on the direction of maximum variances, or the &lt;em&gt;principal components&lt;/em&gt;).&lt;/p&gt;
+
+&lt;p&gt;Few of the prerequisites for understanding PCA are: &lt;a href=&quot;https://en.wikipedia.org/wiki/Covariance_matrix&quot;&gt;&lt;em&gt;Covariance&lt;/em&gt;&lt;/a&gt;, &lt;a href=&quot;https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors&quot;&gt;&lt;em&gt;Eigenvectors&lt;/em&gt;&lt;/a&gt;, and &lt;a href=&quot;https://en.wikipedia.org/wiki/Singular-value_decomposition&quot;&gt;&lt;em&gt;Singular Value Decomposition&lt;/em&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Note: Some resources to read about the aforementioned topics:&lt;/p&gt;
+
+  &lt;ol&gt;
+    &lt;li&gt;Eigenvalues &amp;amp; Eigenvectors: &lt;a href=&quot;http://setosa.io/ev/eigenvectors-and-eigenvalues/&quot;&gt;Setosa visualization&lt;/a&gt;, &lt;a href=&quot;https://www.youtube.com/watch?v=PFDu9oVAE-g&amp;amp;t=0s&amp;amp;list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&amp;amp;index=15&quot;&gt;3Blue1Brown&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;SVD: &lt;a href=&quot;https://medium.com/the-andela-way/foundations-of-machine-learning-singular-value-decomposition-svd-162ac796c27d&quot;&gt;This nice Medium blogpost&lt;/a&gt;&lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;For example, take some data (Say, &lt;script type=&quot;math/tex&quot;&gt;X&lt;/script&gt;) with zero mean (if mean is not zero then subtract all values &lt;script type=&quot;math/tex&quot;&gt;x_i&lt;/script&gt; with the mean, &lt;script type=&quot;math/tex&quot;&gt;\mu&lt;/script&gt;). The covariance of this data (Say &lt;script type=&quot;math/tex&quot;&gt;C_X&lt;/script&gt;) is given by:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;C_X = \frac{1}{n}\cdot X\cdot X^T&lt;/script&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/PCA/data.png&quot; alt=&quot;data&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;We want to figure out a transformation function &lt;script type=&quot;math/tex&quot;&gt;W&lt;/script&gt; and apply on the data &lt;script type=&quot;math/tex&quot;&gt;X&lt;/script&gt; so that in the resulting data &lt;script type=&quot;math/tex&quot;&gt;Y&lt;/script&gt;, the variables will be independent of each other. In simple terms, the covariance between any two distinct columns of &lt;script type=&quot;math/tex&quot;&gt;Y&lt;/script&gt; will be zero, i.e. the non-diagonal elements of the covariance matrix &lt;script type=&quot;math/tex&quot;&gt;C_Y&lt;/script&gt; of &lt;script type=&quot;math/tex&quot;&gt;Y&lt;/script&gt; will be zero.
+This implies that &lt;script type=&quot;math/tex&quot;&gt;C_Y&lt;/script&gt; will be a diagonal matrix.&lt;/p&gt;
+
+&lt;p&gt;Writing the transformation from &lt;script type=&quot;math/tex&quot;&gt;X&lt;/script&gt; to &lt;script type=&quot;math/tex&quot;&gt;Y&lt;/script&gt;, we have:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;Y = X\cdot W&lt;/script&gt;
+
+&lt;p&gt;To solve for the covariance matrix of Y, we can write&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;C_Y = \frac{1}{n}\cdot Y\cdot Y^T&lt;/script&gt;
+
+&lt;p&gt;and since, &lt;script type=&quot;math/tex&quot;&gt;Y = W\cdot X&lt;/script&gt;, we have,&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;C_Y = \frac{1}{n}\cdot W\cdot X\cdot (W\cdot X)^T\\
+C_Y = \frac{1}{n}\cdot W\cdot X\cdot X^T\cdot W^T\\
+C_Y = W\cdot (\frac{1}{n}\cdot X\cdot X^T)\cdot W^T\\
+C_Y = W\cdot C_X\cdot W^T&lt;/script&gt;
+
+&lt;p&gt;or,&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;C_X = W^T\cdot C_Y\cdot W&lt;/script&gt;
+
+&lt;p&gt;We know that, &lt;script type=&quot;math/tex&quot;&gt;C_Y&lt;/script&gt; is supposed to be a diagonal matrix. What does this equation remind us of? &lt;em&gt;but of course&lt;/em&gt;, the Singular Value Decomposition (SVD).
+Thus, If we take &lt;script type=&quot;math/tex&quot;&gt;W&lt;/script&gt; as the matrix of the eigenvalues and &lt;script type=&quot;math/tex&quot;&gt;C_Y&lt;/script&gt; as the diagonal matrix of the eigenvalues, the above equation will hold true, making the matrix &lt;script type=&quot;math/tex&quot;&gt;W&lt;/script&gt;, of eigenvectors of covariance of &lt;script type=&quot;math/tex&quot;&gt;X&lt;/script&gt;, our transformation matrix.&lt;/p&gt;
+
+&lt;p&gt;Computing the above values for our data, and plotting the directions of the obtained eigenvalues, we get the following:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/PCA/eig.png&quot; alt=&quot;eig&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;As can be seen clearly, one of the eigenvectors falls along the direction of maximum variance of the data. On transforming the data &lt;script type=&quot;math/tex&quot;&gt;X&lt;/script&gt; into &lt;script type=&quot;math/tex&quot;&gt;Y&lt;/script&gt;, and plotting again, we get:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/PCA/trans.png&quot; alt=&quot;trans&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Printing the covariance of the new data &lt;script type=&quot;math/tex&quot;&gt;Y&lt;/script&gt;, we can see it’s a diagonal matrix. Also, the equation &lt;script type=&quot;math/tex&quot;&gt;W\cdot C_Y\cdot W^T&lt;/script&gt; returns the original covariance matrix &lt;script type=&quot;math/tex&quot;&gt;C_X&lt;/script&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/PCA/sig.png&quot; alt=&quot;sig&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;dimension-reduction&quot;&gt;Dimension Reduction&lt;/h3&gt;
+
+&lt;p&gt;One of the major applications of PCA is it’s ability to choose the dimensions of maximum variation, i.e. taking the projection of the data along those components only will not affect the complexity of the data by a significant amount and data can be reconstructed back to an approximation of it’s original form with the lower dimensional data as well.&lt;/p&gt;
+
+&lt;p&gt;On paying more attention to the covariance matrix &lt;script type=&quot;math/tex&quot;&gt;C_Y&lt;/script&gt;, we see that the magnitude of the eigenvalues along the diagonal of the matrix is related to the amount of variances explained by the said eigenvector direction.&lt;/p&gt;
+
+&lt;p&gt;So, sorting the eigenvalues and corresponding eigenvector pairs in decreasing order and taking only the top values becomes the ideal way of choosing the eigenvectors for obtaining maximum explained variances.&lt;/p&gt;
+
+&lt;p&gt;For further demonstration, let’s use another dataset (&lt;a href=&quot;http://yann.lecun.com/exdb/mnist/&quot;&gt;MNIST&lt;/a&gt;) for PCA.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/PCA/mnist.png&quot; alt=&quot;mnist&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Computing the eigenvectors and eigenvalues for the above dataset and sorting them on the basis of eigenvalues (descending order), we can store them back in numpy arrays.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/PCA/mnist_eig.png&quot; alt=&quot;mnist_eig&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;And plot the eigenvalues, and the cumulative sum of the eigenvalues (&lt;strong&gt;Explained Variances&lt;/strong&gt;).&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/PCA/exp_var.png&quot; alt=&quot;exp_var&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;From the above curve for the cumulative sum, denoting the explained variances of the original data, we can conclude that approximate 150 dimensions shall be enough to get ~95% of the variances of the original dataset, and about 326 dimensions out of 784 for ~99%.&lt;/p&gt;
+
+&lt;p&gt;To reduce the number of dimensions, we have to select the number of dimensions we want &lt;script type=&quot;math/tex&quot;&gt;k&lt;/script&gt; and use only those &lt;script type=&quot;math/tex&quot;&gt;k&lt;/script&gt; columns from &lt;script type=&quot;math/tex&quot;&gt;W&lt;/script&gt; to form the transformation matrix (Say &lt;script type=&quot;math/tex&quot;&gt;W&#39;&lt;/script&gt;). Thus the transformation and reconstruction operation become:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;Y_{m \times k} = X_{m \times n} \cdot W&#39;_{n \times k}\\
+\\
+X&#39;_{m \times n} = Y_{m \times k} \cdot W&#39;^T_{k \times n}&lt;/script&gt;
+
+&lt;p&gt;Let’s now pick only 2 dimensions (~23% explained variance), and plot the points as a scatter plot, and color based on the class label from the training set. Let’s use scikit-learn package for this last operation:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/PCA/pca_data.png&quot; alt=&quot;pca_data&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;From the scatter plot, we can do some simple analysis and see some relationship between the color of points (labels) and their location on the plot. For instance, the green cluster (representing the label &lt;strong&gt;1&lt;/strong&gt;) is formed clearly distinct from others, while the clusters for colors brown and pink (for digits &lt;strong&gt;4&lt;/strong&gt; and &lt;strong&gt;9&lt;/strong&gt;) are somewhat in the same region, etc.&lt;/p&gt;
+
+&lt;p&gt;Although the explained variance with 2 dimensions was roughly 23%, we still can derive some meaningful information about the data. Having more number of dimensions will make it easier to process and analyse the data as compared to the original data distribution.&lt;/p&gt;
+
+&lt;p&gt;Also, applying PCA would make it easier to use the data in models such as the &lt;a href=&quot;https://en.wikipedia.org/wiki/Naive_Bayes_classifier&quot;&gt;Naive Bayes&lt;/a&gt;, where the core assumption is that the columns are independent of each other.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Note: If we want to keep the physical meaning of the columns in the dataset intact, using PCA would be a bad idea since the transformed columns are linear combinations of the original columns. Hence, the new columns would lose their original meaning.&lt;/p&gt;
+
+  &lt;p&gt;Also, dimension reduction is useful only if the eigenvalues vary significantly for any data distribution. For eigenvalues in similar ranges, each column will have similar contribution towards the variation in data, hence removing them would cause greater loss.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;–&lt;/p&gt;
+
+</description>
+        <pubDate>Thu, 28 Jun 2018 14:30:00 +0530</pubDate>
+        <link>http://shubham1810.github.io/blog/pca/2018/06/28/pca/</link>
+        <guid isPermaLink="true">http://shubham1810.github.io/blog/pca/2018/06/28/pca/</guid>
+      </item>
+    
+      <item>
         <title>Object Detection with R-CNN Family</title>
         <description>&lt;p&gt;Convolution Neural Networks (CNNs) are widely used, majorly for the purpose of image classification (classifying an object in an image into one of the given categories) and have shown to perform very well on huge datasets (for example, the ImageNet challenge [link]). Even with the huge success &lt;replace this=&quot;&quot;&gt; of CNNs in classification, the task of actually understanding an image still remains a challenge. One such task that corresponds to image understanding is object detection, wherein the task is to detect objects in an image and specify where these objects appear in the image (using a bounding box or masking etc.).&lt;/replace&gt;&lt;/p&gt;
 
