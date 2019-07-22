@@ -7,6 +7,199 @@
     <atom:link href="http://shubham1810.github.io/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>Semi-Implicit Networks</title>
+        <description>&lt;p&gt;Residual Neural Networks, or ResNets &lt;a href=&quot;#1&quot;&gt;[1]&lt;/a&gt;, became popularised in the recent years, Making it possible to train very deep neural networks while still achieving compelling performance. The core idea behind ResNets is the addition of skip-connections which enables the network to avoid the problem of vanishing gradients upto a large extent, and hence, making it easier for the network to be very deep &lt;em&gt;(One of the examples is ResNet’s 152 layers, compared to VGG’s 19 layers &lt;a href=&quot;#2&quot;&gt;[2]&lt;/a&gt; or GoogleNet’s 22 layers &lt;a href=&quot;#3&quot;&gt;[3]&lt;/a&gt;)&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;The similarity of ResNet architecture with &lt;a href=&quot;https://en.wikipedia.org/wiki/Ordinary_differential_equation&quot;&gt;Ordinary Differential Equations&lt;/a&gt; has been under some attention in recent works &lt;a href=&quot;#4&quot;&gt;[4]&lt;/a&gt;. The connection raises the issue of forward stability of such methods &lt;em&gt;i.e.&lt;/em&gt; the model should not amlify the features through layers when perturbations such as noise, adversarial attacks or general changes appear in the given input.&lt;/p&gt;
+
+&lt;p&gt;This post closely follows &lt;em&gt;(read shamelessly copies)&lt;/em&gt; the work presented in &lt;strong&gt;IMEXnet - Forward Stable Deep Neural Network&lt;/strong&gt; &lt;a href=&quot;#5&quot;&gt;[5]&lt;/a&gt; (Published in ICML 2019). In this work, Authors talk about the forward stability of residual architectures and the problems that can arise with using explicit methods for the ordinary differential equation forms of ResNet. The authors also look closely at the &lt;em&gt;field of view&lt;/em&gt; problem in terms of high-dimensional output problems (such as image-to-image methods like segmentation, depth-estimation, super-resolution etc.). For solving tasks that involve high-dimensional output, several layers of Residual blocks are often employed in the network architecture to model interactions between far away pixels. The authors introduce an architecture based on Implicit-Explicit methods for the ODE/PDE form of the Residual Networks which enhances the field of view with an improvement in stability of the network.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;In this post, I have discussed the concept of semi-implicit methods provided by the authors. For a detailed view and experimental analysis, head over to their paper &lt;a href=&quot;#5&quot;&gt;[5]&lt;/a&gt; and their &lt;a href=&quot;https://github.com/HaberGroup/SemiImplicitDNNs&quot;&gt;github repo&lt;/a&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;residual-method-as-ode&quot;&gt;Residual Method as ODE&lt;/h2&gt;
+
+&lt;p&gt;The &lt;script type=&quot;math/tex&quot;&gt;j^{th}&lt;/script&gt; layer of a Residual layer, updating the feature &lt;script type=&quot;math/tex&quot;&gt;Y_j&lt;/script&gt; can be written as:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;Y_{j+1} = Y_{j} + h.f(Y_{j}, \theta_{j}) \tag{1} \label{eq:one}&lt;/script&gt;
+
+&lt;p&gt;Where, &lt;script type=&quot;math/tex&quot;&gt;Y_{j+1}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;Y_j&lt;/script&gt; are outputs of layers &lt;script type=&quot;math/tex&quot;&gt;j+1&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;j&lt;/script&gt; respectively. &lt;script type=&quot;math/tex&quot;&gt;\theta_j&lt;/script&gt; is the layer parameter, &lt;script type=&quot;math/tex&quot;&gt;f&lt;/script&gt; is a non-linear function, and &lt;script type=&quot;math/tex&quot;&gt;h&lt;/script&gt; is the step size (usually set to 1). In problems related to images, the function &lt;script type=&quot;math/tex&quot;&gt;f&lt;/script&gt; is usually a series of convolutions, normalisation and activations. In this particular work, &lt;script type=&quot;math/tex&quot;&gt;f&lt;/script&gt; is taken to be:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;f(Y, K_1, K_2, \alpha, \beta) = K_2 \sigma (N_{\alpha,\beta} (K_1 Y)) \tag{2} \label{eq:two}&lt;/script&gt;
+
+&lt;p&gt;Here &lt;script type=&quot;math/tex&quot;&gt;K_1&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;K_2&lt;/script&gt; are taken to be 3x3 convolutional kernels, &lt;script type=&quot;math/tex&quot;&gt;N_{\alpha,\beta}&lt;/script&gt; is the normalization layer and &lt;script type=&quot;math/tex&quot;&gt;\sigma&lt;/script&gt; is the non-linear activation function. This structure was taken from &lt;a href=&quot;#1&quot;&gt;[1]&lt;/a&gt;. The function in the above equation can be used to see that the operation on a small 5x5 patch will be used to evaluate the output pixel information, thus making it necessary to use a number of such blocks to have a wider field of view over the input image.&lt;/p&gt;
+
+&lt;h3 id=&quot;forward-euler-form&quot;&gt;Forward Euler Form&lt;/h3&gt;
+
+&lt;p&gt;In lieu of the step function described in \eqref{eq:one} (the discretized form), the &lt;a href=&quot;http://web.mit.edu/10.001/Web/Course_Notes/Differential_Equations_Notes/node3.html&quot;&gt;forward euler formulation&lt;/a&gt; of the ODE is written as:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\dot Y(t) = f(Y(t), \theta(t))\\
+Y(0) = Y_0 \tag{3} \label{eq:three}&lt;/script&gt;
+
+&lt;p&gt;The features &lt;script type=&quot;math/tex&quot;&gt;Y(t)&lt;/script&gt; and the weights &lt;script type=&quot;math/tex&quot;&gt;\theta(t)&lt;/script&gt; are taken to be continuous functions in time, where &lt;script type=&quot;math/tex&quot;&gt;t&lt;/script&gt; corresponds to the depth of the network. Previously, explicit methods (such as &lt;a href=&quot;https://en.wikipedia.org/wiki/Midpoint_method&quot;&gt;mid-point method&lt;/a&gt;, &lt;a href=&quot;https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods&quot;&gt;Runge Kutta method&lt;/a&gt; have been utilised to solve such equations, they often suffer from a lack of stability. &lt;a href=&quot;https://en.wikipedia.org/wiki/Explicit_and_implicit_methods&quot;&gt;Explicit methods&lt;/a&gt; are of the form where the information in &lt;script type=&quot;math/tex&quot;&gt;Y_{t+1}&lt;/script&gt; is described as a functoin of the previous state &lt;script type=&quot;math/tex&quot;&gt;Y_t&lt;/script&gt;. Using some iterative methods (as mentioned in examples above), many small steps are usually needed to integrate the PDE over a long amount of time.&lt;/p&gt;
+
+&lt;p&gt;As mentioned in the paper, one way to improve the flow of information in the network modelled after ODEs is to make use of implicit methods, &lt;em&gt;i.e.&lt;/em&gt; express the state &lt;script type=&quot;math/tex&quot;&gt;Y_{t+1}&lt;/script&gt; in terms of the same time-step &lt;script type=&quot;math/tex&quot;&gt;Y_{t+1}&lt;/script&gt; implicitly.&lt;/p&gt;
+
+&lt;h2 id=&quot;semi-implicit-form-and-its-stability&quot;&gt;Semi-Implicit Form and It’s Stability&lt;/h2&gt;
+
+&lt;p&gt;One of the simplest forms for implicit functions, quite similar to forward euler equation is the &lt;a href=&quot;http://web.mit.edu/10.001/Web/Course_Notes/Differential_Equations_Notes/node3.html&quot;&gt;backward euler method&lt;/a&gt; in the non-linear discretized form:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;Y_{j+1} - Y_{j} = h . f(Y_{j+1}, \theta_{j+1}) \tag{4} \label{eq:four}&lt;/script&gt;
+
+&lt;p&gt;This method is stable for any choice of &lt;script type=&quot;math/tex&quot;&gt;h&lt;/script&gt; when the eigenvalue of the jacobian of &lt;script type=&quot;math/tex&quot;&gt;f&lt;/script&gt; have no positive real part (See &lt;a href=&quot;http://www.scholarpedia.org/article/Equilibrium&quot;&gt;This article&lt;/a&gt; for more details on stability of methods w.r.t to second-order differential equations). If the given condition is satisfied, &lt;script type=&quot;math/tex&quot;&gt;h&lt;/script&gt; can be chosen large enough to simulate large step-size in the continuous form while being robust to small perturbations in the input information.&lt;/p&gt;
+
+&lt;p&gt;Turns out, implicit methods are rather expensive to compute. Especially the above mentioned equation \eqref{eq:four} is a non-linear problem which can be computationally expensive to solve. So rather than using a full implicit or explicit method, the authors derived a combination in the form of a implicit-explicit (IMEX) or semi-implicit method.&lt;/p&gt;
+
+&lt;p&gt;They key idea in IMEX methods is to divide the right-hand side of the ODE into two parts: A non-linear explicit form and a linear implicit form. The equation in IMEXnet is designed in such a way that it can be solved efficiently. The equation in \eqref{eq:three} will now be reformatted as:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\dot Y(t) = f(Y(t), \theta(t)) + LY(t) - LY(t) \tag{5} \label{eq:five}&lt;/script&gt;
+
+&lt;p&gt;where, The first part &lt;script type=&quot;math/tex&quot;&gt;f(Y(t), \theta(t)) + LY(t)&lt;/script&gt; is treated explicitly, while the second part &lt;script type=&quot;math/tex&quot;&gt;LY(t)&lt;/script&gt; is treated implicitly.
+The matrix &lt;script type=&quot;math/tex&quot;&gt;L&lt;/script&gt; is chosen freely with the property of being easily invertible. A fair choice of &lt;script type=&quot;math/tex&quot;&gt;L&lt;/script&gt; can be modelled after a 3x3 convolution operation with symmetric positive-definite property, which makes it easy to invert (more on that later). The continuous equation can now be simplified as the following:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;Y_{j+1} - hLY_{j+1} = Y_j + hf(Y_j, \theta_j) + hLY_j&lt;/script&gt;
+
+&lt;p&gt;which can be simplified as:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;Y_{j+1} = (I - hL)^{-1} (Y_j + hLY_j + hf(Y_j, \theta_j)) \tag{6} \label{eq:six}&lt;/script&gt;
+
+&lt;p&gt;with &lt;script type=&quot;math/tex&quot;&gt;I&lt;/script&gt; being the identity matrix.
+In the above equation, the authors have shown that the forward part (while seemingly complex) is rather easy to compute and similar to that of a convolution. Furthermore, the authors claim that the network is always stable for a suitable choice of &lt;script type=&quot;math/tex&quot;&gt;L&lt;/script&gt;, while having some favourable properties of implicit methods. The matrix &lt;script type=&quot;math/tex&quot;&gt;(I + hL)^{-1}&lt;/script&gt; is dense in nature, which avoids the field of view problem by using all pixels of the image in it’s computational step.&lt;/p&gt;
+
+&lt;p&gt;The authors choose &lt;script type=&quot;math/tex&quot;&gt;L&lt;/script&gt; to be a laplacian matrix with a group convolution operator (group conv. was also used in AlexNet! &lt;a href=&quot;#6&quot;&gt;[6]&lt;/a&gt;). The weights of the matrix are taken as the following:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;% &lt;![CDATA[
+L = \frac{1}{6} \begin{bmatrix}-1 &amp; -4 &amp; -1\\-4 &amp; 20 &amp; -4\\-1 &amp; -4 &amp; -1\end{bmatrix} \tag{7} %]]&gt;&lt;/script&gt;
+
+&lt;p&gt;Before going into the discussion about the choice of &lt;script type=&quot;math/tex&quot;&gt;L&lt;/script&gt; and the stability of the method, a quick recap of the Laplace transform is due.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;The &lt;a href=&quot;https://en.wikipedia.org/wiki/Laplace_transform&quot;&gt;Laplace transform&lt;/a&gt; (taken from wikipedia), converts a function of real variable &lt;script type=&quot;math/tex&quot;&gt;t&lt;/script&gt; to a function of a complex variable &lt;script type=&quot;math/tex&quot;&gt;s&lt;/script&gt;. The laplace transform for &lt;script type=&quot;math/tex&quot;&gt;f(t); t \ge 0&lt;/script&gt; is the function &lt;script type=&quot;math/tex&quot;&gt;F(s)&lt;/script&gt; which is a unilteral transform defined by:&lt;/p&gt;
+
+  &lt;script type=&quot;math/tex; mode=display&quot;&gt;F(s) = \int_{0}^{\infty} f(t) e^{-st} dt&lt;/script&gt;
+
+  &lt;p&gt;And, for a laplacian matrix, &lt;script type=&quot;math/tex&quot;&gt;L&lt;/script&gt; is defined as, &lt;script type=&quot;math/tex&quot;&gt;L = D - A&lt;/script&gt; for a graph &lt;script type=&quot;math/tex&quot;&gt;G&lt;/script&gt;, where &lt;script type=&quot;math/tex&quot;&gt;A&lt;/script&gt; is the adjacency matrix and &lt;script type=&quot;math/tex&quot;&gt;D&lt;/script&gt; is the degree matrix of the graph &lt;script type=&quot;math/tex&quot;&gt;G&lt;/script&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Now, on the stability of the method, the authors provide a wonderful example of a simplified setting with a model problem (as given below) and provide the reasoning for the aforementioned choice of &lt;script type=&quot;math/tex&quot;&gt;L&lt;/script&gt;.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\dot Y(t) = \lambda Y(t)\\
+Y(t) = Y_0 \tag{8}&lt;/script&gt;
+
+&lt;p&gt;And take &lt;script type=&quot;math/tex&quot;&gt;L = \alpha I&lt;/script&gt;, where we choose &lt;script type=&quot;math/tex&quot;&gt;\alpha \ge 0&lt;/script&gt;. (Refer to the paper for a complete proof).
+Based on the analysis, the authors choose &lt;script type=&quot;math/tex&quot;&gt;K_1 = -K_{2}^{\intercal}&lt;/script&gt; in the equation \eqref{eq:two} as discussed properly in &lt;a href=&quot;#7&quot;&gt;[7]&lt;/a&gt;, and also impose bound constraints on the convolution weights to achieve a bound on the term of &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt;, hence improving the stability of the model.&lt;/p&gt;
+
+&lt;p&gt;An example of the field of view is shown here for IMEXnet.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMEX/FOV.png&quot; alt=&quot;FOV&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;the-forward-pass&quot;&gt;The Forward Pass&lt;/h3&gt;
+
+&lt;p&gt;The authors show that using already available and widely used tools such as auto-differentiation and the fast fourier transform (&lt;a href=&quot;https://en.wikipedia.org/wiki/Fast_Fourier_transform&quot;&gt;FFT&lt;/a&gt;), an efficient way for computing the linear system given below can be found.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;(I + hL)Y = B&lt;/script&gt;
+
+&lt;p&gt;where, &lt;script type=&quot;math/tex&quot;&gt;L&lt;/script&gt; is constructed like a group-wise convolution as mentioned earlier and &lt;script type=&quot;math/tex&quot;&gt;B&lt;/script&gt; collects the explicit term.&lt;/p&gt;
+
+&lt;p&gt;For efficient solution to the system, authors make use of the &lt;a href=&quot;https://en.wikipedia.org/wiki/Convolution_theorem&quot;&gt;convolution theorem&lt;/a&gt; in the fourier space. The theorem says, for a convolution operation between a kernel &lt;script type=&quot;math/tex&quot;&gt;A&lt;/script&gt; and features &lt;script type=&quot;math/tex&quot;&gt;Y&lt;/script&gt;, the convolutional operation can be computed as:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;A * Y = F^{-1}((FA) \odot (FY)) \tag{9} \label{eq:nine}&lt;/script&gt;
+
+&lt;p&gt;Where, &lt;script type=&quot;math/tex&quot;&gt;F&lt;/script&gt; is the Fourier transform, &lt;script type=&quot;math/tex&quot;&gt;*&lt;/script&gt; is the convolution operator, and &lt;script type=&quot;math/tex&quot;&gt;\odot&lt;/script&gt; is the hadamard-product (element-wise multiplication). Here, we assume a &lt;strong&gt;periodic boundary&lt;/strong&gt; on the image data (discussed in detail next). This implies that if we need to compute the product of inverse of the convolutional operator &lt;script type=&quot;math/tex&quot;&gt;A&lt;/script&gt;, we can simply element-wise divide by the inverse fourier transform of &lt;script type=&quot;math/tex&quot;&gt;A&lt;/script&gt;:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;A^{-1} * Y = F^{-1}((FY) \oslash (FA))&lt;/script&gt;
+
+&lt;p&gt;In our case, the kernel &lt;script type=&quot;math/tex&quot;&gt;A&lt;/script&gt; is associated with the matrix &lt;script type=&quot;math/tex&quot;&gt;I + hL&lt;/script&gt;, which is invertible. For example, when we choose &lt;script type=&quot;math/tex&quot;&gt;L&lt;/script&gt; to be positive semi-definite, we define:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;L = B^{\intercal} B&lt;/script&gt;
+
+&lt;p&gt;Where, &lt;script type=&quot;math/tex&quot;&gt;B&lt;/script&gt; is a trainable group-convolution operator. Using Fourier methods, we need to have the convolutional kernel at the same size as the image we convolve it with. This is done by generating a zero-matrix as the same size as that of the image and inserting entries of the kernel at appropriate places.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;For a more thorough explaination about how to construct this kernel for fourier method, refer to the book &lt;a href=&quot;#8&quot;&gt;[8]&lt;/a&gt;. The periodic boundary condition and the positive semi-definite property of the kernel are important here to derive the final convolution kernel &lt;script type=&quot;math/tex&quot;&gt;A&lt;/script&gt; for fourier transform and it’s spectral decomposition.&lt;/p&gt;
+
+  &lt;p&gt;Specifically, in chapters 3 and 4 of the book, it is given in detail about how to form the convolution kernel (or toeplitz matrix) for the &lt;strong&gt;BCCB (Boundary Circulant with Circulat Blocks)&lt;/strong&gt; type matrix. All BCCB matrices are normal in nature, i.e. &lt;script type=&quot;math/tex&quot;&gt;A^{*} A = A A^{*}&lt;/script&gt;.&lt;/p&gt;
+
+  &lt;p&gt;So, a basic outline to compute the equation \eqref{eq:nine} is:&lt;/p&gt;
+
+  &lt;ol&gt;
+    &lt;li&gt;Compute the center of the kernel (after zero padding to match the size)&lt;/li&gt;
+    &lt;li&gt;Apply the corresponding circular shift over the kernel with the center.&lt;/li&gt;
+    &lt;li&gt;Compute the fourier transform of the update kernel and the image.&lt;/li&gt;
+    &lt;li&gt;Take the inverse fourier transform of the product.&lt;/li&gt;
+  &lt;/ol&gt;
+
+  &lt;p&gt;Refer to &lt;a href=&quot;#8&quot;&gt;[8]&lt;/a&gt; for a detailed information about the process, and &lt;a href=&quot;https://en.wikipedia.org/wiki/Convolution_theorem&quot;&gt;convolution theorem&lt;/a&gt; for a proof of the equation \eqref{eq:nine}.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The method is wonderfully captured by the authors with the help of a PyTorch pseudo-code as following:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMEX/algo.png&quot; alt=&quot;algo&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;computational-complexity&quot;&gt;Computational Complexity&lt;/h3&gt;
+
+&lt;p&gt;For a single block ResNet, with m channels and input image of size sxs, the forward pass takes approximately &lt;script type=&quot;math/tex&quot;&gt;\mathcal{O}(m^2 s^2)&lt;/script&gt; operations and &lt;script type=&quot;math/tex&quot;&gt;\mathcal{O}(m^2)&lt;/script&gt; memory.&lt;/p&gt;
+
+&lt;p&gt;For the IMEX network, the explicit is pretty much the same followed by the implicit step. The Implicit step is a group-wise convolutional operation and requires &lt;script type=&quot;math/tex&quot;&gt;\mathcal{O}(m(s.log(s))^2)&lt;/script&gt; additional operations. The &lt;script type=&quot;math/tex&quot;&gt;s.log(s)&lt;/script&gt; term results from the application of the fourier transform. Since &lt;script type=&quot;math/tex&quot;&gt;log(s)&lt;/script&gt; is typically much smaller than &lt;script type=&quot;math/tex&quot;&gt;m&lt;/script&gt;, the additional cost can be considered insignificant.&lt;/p&gt;
+
+&lt;h2 id=&quot;final-notes&quot;&gt;Final Notes&lt;/h2&gt;
+
+&lt;p&gt;As for the effectiveness of the network, the authors provide some compelling results on problems such as segmentation on synthetic Q-tip images as a toy example, and depth-estimation over kitchen images from the NYU Depth V2 &lt;a href=&quot;#9&quot;&gt;[9]&lt;/a&gt; dataset. One example as taken from the paper is shown below:&lt;/p&gt;
+
+&lt;p&gt;First example from the Qtip segmentation:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMEX/qtip.png&quot; alt=&quot;qtip&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;And an example from the depth estimation for kitchen images taken from the NYU Depth V2 dataset &lt;a href=&quot;#9&quot;&gt;[9]&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMEX/nyu_depth.png&quot; alt=&quot;nyu&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The authors also make note of further possibilities for choosing other models with similar implicit properties. They epecially make note of a variant that can be used (called the diffusion-reaction problem):&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\dot Y(t) = f(Y(t), \theta(t)) - LY(t)&lt;/script&gt;
+
+&lt;p&gt;Such equations can have interesting behaviour like forming non-linear wave patterns etc. These systems have been already studied in rigourous details as mentioned in the paper.&lt;/p&gt;
+
+&lt;p&gt;Some further work over this appproach is also discussed in the paper: &lt;strong&gt;Robust Learning with Implicit Residual Networks&lt;/strong&gt; &lt;a href=&quot;#10&quot;&gt;[10]&lt;/a&gt;, but that is beyond the scope of this post for now.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;NOTE: I have written this post as per my understanding of the paper, and for my learning. I have tried to summarize (mostly just copy) the paper to the best of my capability in a short duration. Any constructive reviews are welcome.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;NOTE&lt;/strong&gt; : The authors have made the code (PyTorch) available at &lt;a href=&quot;https://github.com/HaberGroup/SemiImplicitDNNs&quot;&gt;github&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;references&quot;&gt;References&lt;/h2&gt;
+
+&lt;p&gt;[1]&lt;a name=&quot;1&quot;&gt;&lt;/a&gt; He, Kaiming, et al. &lt;a href=&quot;http://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf&quot;&gt;“Deep residual learning for image recognition.”&lt;/a&gt; Proceedings of the IEEE conference on computer vision and pattern recognition. 2016.&lt;/p&gt;
+
+&lt;p&gt;[2]&lt;a name=&quot;2&quot;&gt;&lt;/a&gt; Simonyan, Karen, and Andrew Zisserman. &lt;a href=&quot;https://arxiv.org/pdf/1409.1556.pdf%20http://arxiv.org/abs/1409.1556&quot;&gt;“Very deep convolutional networks for large-scale image recognition.”&lt;/a&gt; arXiv preprint arXiv:1409.1556 (2014).&lt;/p&gt;
+
+&lt;p&gt;[3]&lt;a name=&quot;3&quot;&gt;&lt;/a&gt; Szegedy, Christian, et al. &lt;a href=&quot;https://www.cv-foundation.org/openaccess/content_cvpr_2015/papers/Szegedy_Going_Deeper_With_2015_CVPR_paper.pdf&quot;&gt;“Going deeper with convolutions.”&lt;/a&gt; Proceedings of the IEEE conference on computer vision and pattern recognition. 2015.&lt;/p&gt;
+
+&lt;p&gt;[4]&lt;a name=&quot;4&quot;&gt;&lt;/a&gt; Chen, Tian Qi, et al. &lt;a href=&quot;https://papers.nips.cc/paper/7892-neural-ordinary-differential-equations.pdf&quot;&gt;“Neural ordinary differential equations.”&lt;/a&gt; Advances in neural information processing systems. 2018.&lt;/p&gt;
+
+&lt;p&gt;[5]&lt;a name=&quot;5&quot;&gt;&lt;/a&gt; Haber, Eldad, et al. &lt;a href=&quot;https://arxiv.org/pdf/1903.02639&quot;&gt;“IMEXnet: A Forward Stable Deep Neural Network.”&lt;/a&gt; arXiv preprint arXiv:1903.02639 (2019).&lt;/p&gt;
+
+&lt;p&gt;[6]&lt;a name=&quot;6&quot;&gt;&lt;/a&gt; Krizhevsky, Alex, Ilya Sutskever, and Geoffrey E. Hinton. &lt;a href=&quot;http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf&quot;&gt;“Imagenet classification with deep convolutional neural networks.”&lt;/a&gt; Advances in neural information processing systems. 2012.&lt;/p&gt;
+
+&lt;p&gt;[7]&lt;a name=&quot;7&quot;&gt;&lt;/a&gt; Ruthotto, Lars, and Eldad Haber. &lt;a href=&quot;https://arxiv.org/pdf/1804.04272&quot;&gt;“Deep neural networks motivated by partial differential equations.”&lt;/a&gt; arXiv preprint arXiv:1804.04272 (2018).&lt;/p&gt;
+
+&lt;p&gt;[8]&lt;a name=&quot;8&quot;&gt;&lt;/a&gt; Hansen, Per Christian, James G. Nagy, and Dianne P. O’Leary. “Deblurring images, volume 3 of Fundamentals of Algorithms.” Society for Industrial and Applied Mathematics (SIAM), Philadelphia, PA (2006).&lt;/p&gt;
+
+&lt;p&gt;[9]&lt;a name=&quot;9&quot;&gt;&lt;/a&gt; Silberman, Nathan, et al. &lt;a href=&quot;http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.260.516&amp;amp;rep=rep1&amp;amp;type=pdf&quot;&gt;“Indoor segmentation and support inference from rgbd images.”&lt;/a&gt; European Conference on Computer Vision. Springer, Berlin, Heidelberg, 2012.&lt;/p&gt;
+
+&lt;p&gt;[10]&lt;a name=&quot;10&quot;&gt;&lt;/a&gt; Reshniak, Viktor, and Clayton Webster. &lt;a href=&quot;https://arxiv.org/pdf/1905.10479&quot;&gt;“Robust learning with implicit residual networks.”&lt;/a&gt; arXiv preprint arXiv:1905.10479 (2019).&lt;/p&gt;
+
+&lt;p&gt;–&lt;/p&gt;
+
+</description>
+        <pubDate>Mon, 22 Jul 2019 14:30:00 +0530</pubDate>
+        <link>http://shubham1810.github.io/blog/imex/2019/07/22/imex/</link>
+        <guid isPermaLink="true">http://shubham1810.github.io/blog/imex/2019/07/22/imex/</guid>
+      </item>
+    
+      <item>
         <title>Principal Component Analysis</title>
         <description>&lt;p&gt;As we work with real world data, we notice that the complexity increases; both in terms of dependency of variables on each other and dimensionality (number of variables) of the problem. Several techniques exist for analysis of such information and to make it easier to extract important properties for the purpose of better computation and visualization. One such method is the &lt;strong&gt;Principal Component Analysis (PCA)&lt;/strong&gt;, which emphasises on the variance of the data to extract the directions which maximize the data variation.&lt;/p&gt;
 

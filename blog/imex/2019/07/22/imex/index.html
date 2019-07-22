@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Shubham Dokania</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Implicit-Explicit methods for Residual networks as ODE">
+    <meta name="author" content="Shubham Dokania">
+    <meta name="keywords" content="blog, imex">
+    <link rel="canonical" href="http://shubham1810.github.io/blog/imex/2019/07/22/imex/">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Shubham Dokania" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?201907230021" type="text/css">
+
+    <!-- Fonts -->
+    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lato:900,300' rel='stylesheet' type='text/css'>
+    
+      <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    
+
+    <!-- Verifications -->
+    
+
+    <!-- Open Graph -->
+    <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Semi-Implicit Networks">
+    <meta property="og:description" content="Personal website and blog">
+    <meta property="og:url" content="http://shubham1810.github.io/blog/imex/2019/07/22/imex/">
+    <meta property="og:site_name" content="Shubham Dokania">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+        <meta name="twitter:site" content="@shubhamdokania" />
+    
+    <meta name="twitter:title" content="Semi-Implicit Networks" />
+    <meta name="twitter:description" content="Implicit-Explicit methods for Residual networks as ODE" />
+    <meta name="twitter:url" content="http://shubham1810.github.io/blog/imex/2019/07/22/imex/" />
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+
+    
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-62090117-1']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+    
+</head>
+
+<body class="site animated fade-in-down">
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="http://shubham1810.github.io" class="site-title"></a>
+      <nav class="site-nav">
+        <a href="/">Home</a>
+<a href="/blog/">Blog</a>
+      </nav>
+      <div class="clearfix" ></div>
+      
+        <div class="social-icons">
+  <div class="left">
+    
+      <a class="fa fa-github" href="https://github.com/shubham1810"></a>
+    
+    
+    
+    <a class="fa fa-rss" href="/feed.xml"></a>
+    
+      <a class="fa fa-twitter" href="https://twitter.com/shubhamdokania"></a>
+    
+    
+      <a class="fa fa-google-plus" href="https://plus.google.com/+shubamkumar/posts"></a>
+    
+    
+      <a class="fa fa-linkedin" href="https://www.linkedin.com/in/shubhamdokania"></a>
+    
+    
+    
+  </div>
+  <div class="right">
+
+    
+    
+    
+  </div>
+</div>
+
+<div class="clearfix">
+    
+      <center> <a class="fa fa-envelope" href="mailto:shubham.k.dokania@gmail.com"></a> shubham.k.dokania@gmail.com <center>
+    
+</div>
+
+    
+
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>Semi-Implicit Networks</h1>
+  <span class="post-meta">Jul 22, 2019</span><br>
+  
+  <span class="post-meta small">
+  
+    11 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>Residual Neural Networks, or ResNets <a href="#1">[1]</a>, became popularised in the recent years, Making it possible to train very deep neural networks while still achieving compelling performance. The core idea behind ResNets is the addition of skip-connections which enables the network to avoid the problem of vanishing gradients upto a large extent, and hence, making it easier for the network to be very deep <em>(One of the examples is ResNet’s 152 layers, compared to VGG’s 19 layers <a href="#2">[2]</a> or GoogleNet’s 22 layers <a href="#3">[3]</a>)</em>.</p>
+
+<p>The similarity of ResNet architecture with <a href="https://en.wikipedia.org/wiki/Ordinary_differential_equation">Ordinary Differential Equations</a> has been under some attention in recent works <a href="#4">[4]</a>. The connection raises the issue of forward stability of such methods <em>i.e.</em> the model should not amlify the features through layers when perturbations such as noise, adversarial attacks or general changes appear in the given input.</p>
+
+<p>This post closely follows <em>(read shamelessly copies)</em> the work presented in <strong>IMEXnet - Forward Stable Deep Neural Network</strong> <a href="#5">[5]</a> (Published in ICML 2019). In this work, Authors talk about the forward stability of residual architectures and the problems that can arise with using explicit methods for the ordinary differential equation forms of ResNet. The authors also look closely at the <em>field of view</em> problem in terms of high-dimensional output problems (such as image-to-image methods like segmentation, depth-estimation, super-resolution etc.). For solving tasks that involve high-dimensional output, several layers of Residual blocks are often employed in the network architecture to model interactions between far away pixels. The authors introduce an architecture based on Implicit-Explicit methods for the ODE/PDE form of the Residual Networks which enhances the field of view with an improvement in stability of the network.</p>
+
+<blockquote>
+  <p>In this post, I have discussed the concept of semi-implicit methods provided by the authors. For a detailed view and experimental analysis, head over to their paper <a href="#5">[5]</a> and their <a href="https://github.com/HaberGroup/SemiImplicitDNNs">github repo</a>.</p>
+</blockquote>
+
+<h2 id="residual-method-as-ode">Residual Method as ODE</h2>
+
+<p>The <script type="math/tex">j^{th}</script> layer of a Residual layer, updating the feature <script type="math/tex">Y_j</script> can be written as:</p>
+
+<script type="math/tex; mode=display">Y_{j+1} = Y_{j} + h.f(Y_{j}, \theta_{j}) \tag{1} \label{eq:one}</script>
+
+<p>Where, <script type="math/tex">Y_{j+1}</script> and <script type="math/tex">Y_j</script> are outputs of layers <script type="math/tex">j+1</script> and <script type="math/tex">j</script> respectively. <script type="math/tex">\theta_j</script> is the layer parameter, <script type="math/tex">f</script> is a non-linear function, and <script type="math/tex">h</script> is the step size (usually set to 1). In problems related to images, the function <script type="math/tex">f</script> is usually a series of convolutions, normalisation and activations. In this particular work, <script type="math/tex">f</script> is taken to be:</p>
+
+<script type="math/tex; mode=display">f(Y, K_1, K_2, \alpha, \beta) = K_2 \sigma (N_{\alpha,\beta} (K_1 Y)) \tag{2} \label{eq:two}</script>
+
+<p>Here <script type="math/tex">K_1</script> and <script type="math/tex">K_2</script> are taken to be 3x3 convolutional kernels, <script type="math/tex">N_{\alpha,\beta}</script> is the normalization layer and <script type="math/tex">\sigma</script> is the non-linear activation function. This structure was taken from <a href="#1">[1]</a>. The function in the above equation can be used to see that the operation on a small 5x5 patch will be used to evaluate the output pixel information, thus making it necessary to use a number of such blocks to have a wider field of view over the input image.</p>
+
+<h3 id="forward-euler-form">Forward Euler Form</h3>
+
+<p>In lieu of the step function described in \eqref{eq:one} (the discretized form), the <a href="http://web.mit.edu/10.001/Web/Course_Notes/Differential_Equations_Notes/node3.html">forward euler formulation</a> of the ODE is written as:</p>
+
+<script type="math/tex; mode=display">\dot Y(t) = f(Y(t), \theta(t))\\
+Y(0) = Y_0 \tag{3} \label{eq:three}</script>
+
+<p>The features <script type="math/tex">Y(t)</script> and the weights <script type="math/tex">\theta(t)</script> are taken to be continuous functions in time, where <script type="math/tex">t</script> corresponds to the depth of the network. Previously, explicit methods (such as <a href="https://en.wikipedia.org/wiki/Midpoint_method">mid-point method</a>, <a href="https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods">Runge Kutta method</a> have been utilised to solve such equations, they often suffer from a lack of stability. <a href="https://en.wikipedia.org/wiki/Explicit_and_implicit_methods">Explicit methods</a> are of the form where the information in <script type="math/tex">Y_{t+1}</script> is described as a functoin of the previous state <script type="math/tex">Y_t</script>. Using some iterative methods (as mentioned in examples above), many small steps are usually needed to integrate the PDE over a long amount of time.</p>
+
+<p>As mentioned in the paper, one way to improve the flow of information in the network modelled after ODEs is to make use of implicit methods, <em>i.e.</em> express the state <script type="math/tex">Y_{t+1}</script> in terms of the same time-step <script type="math/tex">Y_{t+1}</script> implicitly.</p>
+
+<h2 id="semi-implicit-form-and-its-stability">Semi-Implicit Form and It’s Stability</h2>
+
+<p>One of the simplest forms for implicit functions, quite similar to forward euler equation is the <a href="http://web.mit.edu/10.001/Web/Course_Notes/Differential_Equations_Notes/node3.html">backward euler method</a> in the non-linear discretized form:</p>
+
+<script type="math/tex; mode=display">Y_{j+1} - Y_{j} = h . f(Y_{j+1}, \theta_{j+1}) \tag{4} \label{eq:four}</script>
+
+<p>This method is stable for any choice of <script type="math/tex">h</script> when the eigenvalue of the jacobian of <script type="math/tex">f</script> have no positive real part (See <a href="http://www.scholarpedia.org/article/Equilibrium">This article</a> for more details on stability of methods w.r.t to second-order differential equations). If the given condition is satisfied, <script type="math/tex">h</script> can be chosen large enough to simulate large step-size in the continuous form while being robust to small perturbations in the input information.</p>
+
+<p>Turns out, implicit methods are rather expensive to compute. Especially the above mentioned equation \eqref{eq:four} is a non-linear problem which can be computationally expensive to solve. So rather than using a full implicit or explicit method, the authors derived a combination in the form of a implicit-explicit (IMEX) or semi-implicit method.</p>
+
+<p>They key idea in IMEX methods is to divide the right-hand side of the ODE into two parts: A non-linear explicit form and a linear implicit form. The equation in IMEXnet is designed in such a way that it can be solved efficiently. The equation in \eqref{eq:three} will now be reformatted as:</p>
+
+<script type="math/tex; mode=display">\dot Y(t) = f(Y(t), \theta(t)) + LY(t) - LY(t) \tag{5} \label{eq:five}</script>
+
+<p>where, The first part <script type="math/tex">f(Y(t), \theta(t)) + LY(t)</script> is treated explicitly, while the second part <script type="math/tex">LY(t)</script> is treated implicitly.
+The matrix <script type="math/tex">L</script> is chosen freely with the property of being easily invertible. A fair choice of <script type="math/tex">L</script> can be modelled after a 3x3 convolution operation with symmetric positive-definite property, which makes it easy to invert (more on that later). The continuous equation can now be simplified as the following:</p>
+
+<script type="math/tex; mode=display">Y_{j+1} - hLY_{j+1} = Y_j + hf(Y_j, \theta_j) + hLY_j</script>
+
+<p>which can be simplified as:</p>
+
+<script type="math/tex; mode=display">Y_{j+1} = (I - hL)^{-1} (Y_j + hLY_j + hf(Y_j, \theta_j)) \tag{6} \label{eq:six}</script>
+
+<p>with <script type="math/tex">I</script> being the identity matrix.
+In the above equation, the authors have shown that the forward part (while seemingly complex) is rather easy to compute and similar to that of a convolution. Furthermore, the authors claim that the network is always stable for a suitable choice of <script type="math/tex">L</script>, while having some favourable properties of implicit methods. The matrix <script type="math/tex">(I + hL)^{-1}</script> is dense in nature, which avoids the field of view problem by using all pixels of the image in it’s computational step.</p>
+
+<p>The authors choose <script type="math/tex">L</script> to be a laplacian matrix with a group convolution operator (group conv. was also used in AlexNet! <a href="#6">[6]</a>). The weights of the matrix are taken as the following:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+L = \frac{1}{6} \begin{bmatrix}-1 & -4 & -1\\-4 & 20 & -4\\-1 & -4 & -1\end{bmatrix} \tag{7} %]]></script>
+
+<p>Before going into the discussion about the choice of <script type="math/tex">L</script> and the stability of the method, a quick recap of the Laplace transform is due.</p>
+
+<blockquote>
+  <p>The <a href="https://en.wikipedia.org/wiki/Laplace_transform">Laplace transform</a> (taken from wikipedia), converts a function of real variable <script type="math/tex">t</script> to a function of a complex variable <script type="math/tex">s</script>. The laplace transform for <script type="math/tex">f(t); t \ge 0</script> is the function <script type="math/tex">F(s)</script> which is a unilteral transform defined by:</p>
+
+  <script type="math/tex; mode=display">F(s) = \int_{0}^{\infty} f(t) e^{-st} dt</script>
+
+  <p>And, for a laplacian matrix, <script type="math/tex">L</script> is defined as, <script type="math/tex">L = D - A</script> for a graph <script type="math/tex">G</script>, where <script type="math/tex">A</script> is the adjacency matrix and <script type="math/tex">D</script> is the degree matrix of the graph <script type="math/tex">G</script>.</p>
+</blockquote>
+
+<p>Now, on the stability of the method, the authors provide a wonderful example of a simplified setting with a model problem (as given below) and provide the reasoning for the aforementioned choice of <script type="math/tex">L</script>.</p>
+
+<script type="math/tex; mode=display">\dot Y(t) = \lambda Y(t)\\
+Y(t) = Y_0 \tag{8}</script>
+
+<p>And take <script type="math/tex">L = \alpha I</script>, where we choose <script type="math/tex">\alpha \ge 0</script>. (Refer to the paper for a complete proof).
+Based on the analysis, the authors choose <script type="math/tex">K_1 = -K_{2}^{\intercal}</script> in the equation \eqref{eq:two} as discussed properly in <a href="#7">[7]</a>, and also impose bound constraints on the convolution weights to achieve a bound on the term of <script type="math/tex">\lambda</script>, hence improving the stability of the model.</p>
+
+<p>An example of the field of view is shown here for IMEXnet.</p>
+
+<p><img src="/images/IMEX/FOV.png" alt="FOV" /></p>
+
+<h3 id="the-forward-pass">The Forward Pass</h3>
+
+<p>The authors show that using already available and widely used tools such as auto-differentiation and the fast fourier transform (<a href="https://en.wikipedia.org/wiki/Fast_Fourier_transform">FFT</a>), an efficient way for computing the linear system given below can be found.</p>
+
+<script type="math/tex; mode=display">(I + hL)Y = B</script>
+
+<p>where, <script type="math/tex">L</script> is constructed like a group-wise convolution as mentioned earlier and <script type="math/tex">B</script> collects the explicit term.</p>
+
+<p>For efficient solution to the system, authors make use of the <a href="https://en.wikipedia.org/wiki/Convolution_theorem">convolution theorem</a> in the fourier space. The theorem says, for a convolution operation between a kernel <script type="math/tex">A</script> and features <script type="math/tex">Y</script>, the convolutional operation can be computed as:</p>
+
+<script type="math/tex; mode=display">A * Y = F^{-1}((FA) \odot (FY)) \tag{9} \label{eq:nine}</script>
+
+<p>Where, <script type="math/tex">F</script> is the Fourier transform, <script type="math/tex">*</script> is the convolution operator, and <script type="math/tex">\odot</script> is the hadamard-product (element-wise multiplication). Here, we assume a <strong>periodic boundary</strong> on the image data (discussed in detail next). This implies that if we need to compute the product of inverse of the convolutional operator <script type="math/tex">A</script>, we can simply element-wise divide by the inverse fourier transform of <script type="math/tex">A</script>:</p>
+
+<script type="math/tex; mode=display">A^{-1} * Y = F^{-1}((FY) \oslash (FA))</script>
+
+<p>In our case, the kernel <script type="math/tex">A</script> is associated with the matrix <script type="math/tex">I + hL</script>, which is invertible. For example, when we choose <script type="math/tex">L</script> to be positive semi-definite, we define:</p>
+
+<script type="math/tex; mode=display">L = B^{\intercal} B</script>
+
+<p>Where, <script type="math/tex">B</script> is a trainable group-convolution operator. Using Fourier methods, we need to have the convolutional kernel at the same size as the image we convolve it with. This is done by generating a zero-matrix as the same size as that of the image and inserting entries of the kernel at appropriate places.</p>
+
+<blockquote>
+  <p>For a more thorough explaination about how to construct this kernel for fourier method, refer to the book <a href="#8">[8]</a>. The periodic boundary condition and the positive semi-definite property of the kernel are important here to derive the final convolution kernel <script type="math/tex">A</script> for fourier transform and it’s spectral decomposition.</p>
+
+  <p>Specifically, in chapters 3 and 4 of the book, it is given in detail about how to form the convolution kernel (or toeplitz matrix) for the <strong>BCCB (Boundary Circulant with Circulat Blocks)</strong> type matrix. All BCCB matrices are normal in nature, i.e. <script type="math/tex">A^{*} A = A A^{*}</script>.</p>
+
+  <p>So, a basic outline to compute the equation \eqref{eq:nine} is:</p>
+
+  <ol>
+    <li>Compute the center of the kernel (after zero padding to match the size)</li>
+    <li>Apply the corresponding circular shift over the kernel with the center.</li>
+    <li>Compute the fourier transform of the update kernel and the image.</li>
+    <li>Take the inverse fourier transform of the product.</li>
+  </ol>
+
+  <p>Refer to <a href="#8">[8]</a> for a detailed information about the process, and <a href="https://en.wikipedia.org/wiki/Convolution_theorem">convolution theorem</a> for a proof of the equation \eqref{eq:nine}.</p>
+</blockquote>
+
+<p>The method is wonderfully captured by the authors with the help of a PyTorch pseudo-code as following:</p>
+
+<p><img src="/images/IMEX/algo.png" alt="algo" /></p>
+
+<h3 id="computational-complexity">Computational Complexity</h3>
+
+<p>For a single block ResNet, with m channels and input image of size sxs, the forward pass takes approximately <script type="math/tex">\mathcal{O}(m^2 s^2)</script> operations and <script type="math/tex">\mathcal{O}(m^2)</script> memory.</p>
+
+<p>For the IMEX network, the explicit is pretty much the same followed by the implicit step. The Implicit step is a group-wise convolutional operation and requires <script type="math/tex">\mathcal{O}(m(s.log(s))^2)</script> additional operations. The <script type="math/tex">s.log(s)</script> term results from the application of the fourier transform. Since <script type="math/tex">log(s)</script> is typically much smaller than <script type="math/tex">m</script>, the additional cost can be considered insignificant.</p>
+
+<h2 id="final-notes">Final Notes</h2>
+
+<p>As for the effectiveness of the network, the authors provide some compelling results on problems such as segmentation on synthetic Q-tip images as a toy example, and depth-estimation over kitchen images from the NYU Depth V2 <a href="#9">[9]</a> dataset. One example as taken from the paper is shown below:</p>
+
+<p>First example from the Qtip segmentation:</p>
+
+<p><img src="/images/IMEX/qtip.png" alt="qtip" /></p>
+
+<p>And an example from the depth estimation for kitchen images taken from the NYU Depth V2 dataset <a href="#9">[9]</a>.</p>
+
+<p><img src="/images/IMEX/nyu_depth.png" alt="nyu" /></p>
+
+<p>The authors also make note of further possibilities for choosing other models with similar implicit properties. They epecially make note of a variant that can be used (called the diffusion-reaction problem):</p>
+
+<script type="math/tex; mode=display">\dot Y(t) = f(Y(t), \theta(t)) - LY(t)</script>
+
+<p>Such equations can have interesting behaviour like forming non-linear wave patterns etc. These systems have been already studied in rigourous details as mentioned in the paper.</p>
+
+<p>Some further work over this appproach is also discussed in the paper: <strong>Robust Learning with Implicit Residual Networks</strong> <a href="#10">[10]</a>, but that is beyond the scope of this post for now.</p>
+
+<blockquote>
+  <p>NOTE: I have written this post as per my understanding of the paper, and for my learning. I have tried to summarize (mostly just copy) the paper to the best of my capability in a short duration. Any constructive reviews are welcome.</p>
+</blockquote>
+
+<p><strong>NOTE</strong> : The authors have made the code (PyTorch) available at <a href="https://github.com/HaberGroup/SemiImplicitDNNs">github</a>.</p>
+
+<h2 id="references">References</h2>
+
+<p>[1]<a name="1"></a> He, Kaiming, et al. <a href="http://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf">“Deep residual learning for image recognition.”</a> Proceedings of the IEEE conference on computer vision and pattern recognition. 2016.</p>
+
+<p>[2]<a name="2"></a> Simonyan, Karen, and Andrew Zisserman. <a href="https://arxiv.org/pdf/1409.1556.pdf%20http://arxiv.org/abs/1409.1556">“Very deep convolutional networks for large-scale image recognition.”</a> arXiv preprint arXiv:1409.1556 (2014).</p>
+
+<p>[3]<a name="3"></a> Szegedy, Christian, et al. <a href="https://www.cv-foundation.org/openaccess/content_cvpr_2015/papers/Szegedy_Going_Deeper_With_2015_CVPR_paper.pdf">“Going deeper with convolutions.”</a> Proceedings of the IEEE conference on computer vision and pattern recognition. 2015.</p>
+
+<p>[4]<a name="4"></a> Chen, Tian Qi, et al. <a href="https://papers.nips.cc/paper/7892-neural-ordinary-differential-equations.pdf">“Neural ordinary differential equations.”</a> Advances in neural information processing systems. 2018.</p>
+
+<p>[5]<a name="5"></a> Haber, Eldad, et al. <a href="https://arxiv.org/pdf/1903.02639">“IMEXnet: A Forward Stable Deep Neural Network.”</a> arXiv preprint arXiv:1903.02639 (2019).</p>
+
+<p>[6]<a name="6"></a> Krizhevsky, Alex, Ilya Sutskever, and Geoffrey E. Hinton. <a href="http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf">“Imagenet classification with deep convolutional neural networks.”</a> Advances in neural information processing systems. 2012.</p>
+
+<p>[7]<a name="7"></a> Ruthotto, Lars, and Eldad Haber. <a href="https://arxiv.org/pdf/1804.04272">“Deep neural networks motivated by partial differential equations.”</a> arXiv preprint arXiv:1804.04272 (2018).</p>
+
+<p>[8]<a name="8"></a> Hansen, Per Christian, James G. Nagy, and Dianne P. O’Leary. “Deblurring images, volume 3 of Fundamentals of Algorithms.” Society for Industrial and Applied Mathematics (SIAM), Philadelphia, PA (2006).</p>
+
+<p>[9]<a name="9"></a> Silberman, Nathan, et al. <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.260.516&amp;rep=rep1&amp;type=pdf">“Indoor segmentation and support inference from rgbd images.”</a> European Conference on Computer Vision. Springer, Berlin, Heidelberg, 2012.</p>
+
+<p>[10]<a name="10"></a> Reshniak, Viktor, and Clayton Webster. <a href="https://arxiv.org/pdf/1905.10479">“Robust learning with implicit residual networks.”</a> arXiv preprint arXiv:1905.10479 (2019).</p>
+
+<p>–</p>
+
+
+</article>
+
+
+  
+
+
+
+
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+    var disqus_shortname  = 'shubhamdokania';
+    var disqus_identifier = '/blog/imex/2019/07/22/imex';
+    var disqus_title      = '';
+
+    (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      Powered by <a href="https://jekyllrb.com/">Jekyll</a> using <a href="https://pixyll.com/">Pixyll</a> theme. Hosted on <a href="https://pages.github.com/">Github Pages</a>. <br>
+      © Shubham Dokania
+    </small>
+  </div>
+</footer>
+
+</body>
+</html>
